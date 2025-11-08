@@ -6,6 +6,8 @@ import { Link, useNavigate } from "react-router-dom";
 import Button1 from "./UI/Buttons1";
 import { useAuth0 } from "@auth0/auth0-react";
 import { motion } from "framer-motion";
+import PillNav from "./navbar";
+import logo from '/test1.png';
 
 // Small Tilt wrapper to give a glass-tilt effect on mouse move.
 // It uses direct DOM transforms for smoothness and keeps a subtle scale on hover.
@@ -153,35 +155,43 @@ export default function MainPage() {
       </div>
 
       <div className="min-h-screen relative pointer-events-auto">
-        <header className="border-b border-white/10 bg-gray-900/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
-          <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-teal-500 rounded-xl flex items-center justify-center shadow-lg">
-                <Brain className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-white/90 to-purple-300 bg-clip-text text-transparent">MockMate</span>
-            </div>
-
-            <nav className="hidden md:flex items-center space-x-8">
-              <a href="#features" className="text-gray-300 hover:text-white transition-colors font-medium">Features</a>
-              <a href="#how-it-works" className="text-gray-300 hover:text-white transition-colors font-medium">How it Works</a>
-              <a href="#testimonials" className="text-gray-300 hover:text-white transition-colors font-medium">Reviews</a>
-            </nav>
-
-            <div className="flex items-center gap-3">
-              {!isAuthenticated ? (
-                <Button onClick={handleLogin} variant="outline" className="border-gray-700 text-purple-300 hover:bg-gray-800 bg-gray-900/50 px-6 py-2 font-semibold shadow-sm hover:shadow-md transition-all duration-300">Login / Sign In</Button>
-              ) : (
-                <Button onClick={handleSignOut} variant="outline" className="border-gray-700 text-purple-300 hover:bg-gray-800 bg-gray-900/50 px-6 py-2 font-semibold shadow-sm hover:shadow-md transition-all duration-300">Sign Out</Button>
-              )}
-              <Button onClick={handleStartInterview} className="bg-gradient-to-r from-purple-600 to-teal-500 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300">Start Interview</Button>
-            </div>
-          </div>
-        </header>
+        {/* PillNav Header - Centered */}
+        <div className="flex justify-center mb-24">
+          <PillNav
+            logo={logo}
+            logoAlt="MockMate Logo"
+            items={[
+              { label: 'Home', href: '/' },
+              { label: 'Features', href: '#features' },
+              { label: 'How it Works', href: '#how-it-works' },
+              { label: 'Reviews', href: '#testimonials' }
+            ]}
+            activeHref="/"
+            className="custom-nav"
+            ease="power2.easeOut"
+            baseColor="#B19EEF "
+            pillColor="#060010"
+            hoveredPillTextColor="#000000"
+            pillTextColor="#ffffff"
+          />
+        </div>
+        
+        {/* Login/Signup Button - Fixed Position */}
+        <div className="fixed top-[1em] right-[2em] z-[1001] flex items-center gap-3">
+          {!isAuthenticated ? (
+            <Button onClick={handleLogin} variant="outline" className="border-gray-700 text-purple-300 hover:bg-gray-800 bg-gray-900/50 px-6 py-2 font-semibold shadow-sm hover:shadow-md transition-all duration-300 backdrop-blur-md">
+              Login / Sign Up
+            </Button>
+          ) : (
+            <Button onClick={handleSignOut} variant="outline" className="border-gray-700 text-purple-300 hover:bg-gray-800 bg-gray-900/50 px-6 py-2 font-semibold shadow-sm hover:shadow-md transition-all duration-300 backdrop-blur-md">
+              Sign Out
+            </Button>
+          )}
+        </div>
 
         {/* Hero */}
         <section className="py-20 px-4 relative overflow-hidden">
-          <div className="container mx-auto text-center max-w-4xl relative">
+          <div className="  container mx-auto text-center max-w-4xl relative h-[90vh]">
             <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-purple-900/40 to-teal-900/30 px-4 py-2 rounded-full text-sm font-medium text-purple-300 mb-6 border border-purple-500/20">
               <Zap className="w-4 h-4 text-purple-300" />
               <span>AI-Powered Interview Practice</span>
@@ -204,7 +214,7 @@ export default function MainPage() {
 
         {/* Features (glass cards with tilt + purple outline on hover) */}
         <motion.section id="features" className="py-20 px-4" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.8 }}>
-          <div className="container mx-auto">
+          <div className="container mx-auto -mt-28 ">
             <motion.div className="text-center mb-16" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}>
               <motion.div className="inline-flex items-center space-x-2 bg-teal-900/30 px-4 py-2 rounded-full text-sm font-medium text-teal-300 mb-4 border border-teal-500/20" whileHover={{ scale: 1.05 }}>
                 <Award className="w-4 h-4 text-teal-300" />

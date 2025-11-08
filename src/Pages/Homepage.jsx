@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import GradientBackground from "../Components/UI/GradientBackground";
+import PillNav from "../Components/navbar";
+import logo from '/test1.png';
 
 export default function HomePage() {
   return (
@@ -21,51 +23,48 @@ export default function HomePage() {
 
       {/* Main content */}
       <div className="relative z-10 min-h-screen">
-        {/* Header */}
-        <header className="sticky top-0 z-[999] bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
-                <Brain className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-purple-700 to-teal-700 bg-clip-text text-transparent">
-                MockMate
-              </span>
-            </div>
-
-            <nav className="hidden md:flex items-center space-x-8">
-              <a href="#features" className="text-slate-600 hover:text-purple-700 font-medium">
-                Features
-              </a>
-              <a href="#how-it-works" className="text-slate-600 hover:text-purple-700 font-medium">
-                How it Works
-              </a>
-              <a href="#testimonials" className="text-slate-600 hover:text-purple-700 font-medium">
-                Reviews
-              </a>
-            </nav>
-
-            <div className="flex items-center gap-3">
-              <Link to="/auth">
-                <Button variant="outline" className="border-slate-300 text-purple-700 hover:bg-purple-50">
-                  Login / Sign In
-                </Button>
-              </Link>
-              <Link to="/interview">
-                <Button className="bg-gradient-to-r from-purple-600 to-purple-700 text-white">
-                  Start Interview
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </header>
+        {/* PillNav Header */}
+        <PillNav
+          logo={logo}
+          logoAlt="MockMate Logo"
+          items={[
+            { label: 'Home', href: '/' },
+            { label: 'Features', href: '#features' },
+            { label: 'How it Works', href: '#how-it-works' },
+            { label: 'Reviews', href: '#testimonials' }
+          ]}
+          activeHref="/"
+          className="custom-nav"
+          ease="power2.easeOut"
+          baseColor="#ffffff"
+          pillColor="#7c3aed"
+          hoveredPillTextColor="#ffffff"
+          pillTextColor="#ffffff"
+        />
+        
+        {/* Login/Signup Button - Fixed Position */}
+        <div className="fixed top-[1em] right-[2em] z-[1001] flex items-center gap-3">
+          <Link to="/auth">
+            <Button 
+              variant="outline" 
+              className="border-white/30 text-white hover:bg-white/10 backdrop-blur-md bg-white/5 shadow-lg"
+            >
+              Login / Sign Up
+            </Button>
+          </Link>
+          <Link to="/interview">
+            <Button className="bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 shadow-lg">
+              Start Interview
+            </Button>
+          </Link>
+        </div>
 
         {/* Hero Section */}
         <main>
           <section className="py-20 px-4 relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-r from-purple-600/5 to-teal-600/5 rounded-full blur-3xl transform -translate-y-1/2" />
 
-            <div className="container mx-auto text-center max-w-4xl relative">
+            <div className=" container mx-auto text-center max-w-4xl relative">
               <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-purple-100 to-teal-100 px-4 py-2 rounded-full text-sm font-medium text-purple-700 mb-6 border border-purple-200/50">
                 <Zap className="w-4 h-4" />
                 <span>AI-Powered Interview Practice</span>
