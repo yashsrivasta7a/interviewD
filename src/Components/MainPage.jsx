@@ -156,7 +156,7 @@ export default function MainPage() {
 
       <div className="min-h-screen relative pointer-events-auto">
         {/* PillNav Header - Centered */}
-        <div className="flex justify-center mb-24">
+        <div className="flex fixed left-1/2 transform -translate-x-1/2 justify-center mb-24 z-[1000]">
           <PillNav
             logo={logo}
             logoAlt="MockMate Logo"
@@ -190,8 +190,8 @@ export default function MainPage() {
         </div>
 
         {/* Hero */}
-        <section className="py-20 px-4 relative overflow-hidden">
-          <div className="  container mx-auto text-center max-w-4xl relative h-[90vh]">
+        <section className="py-20 px-4 relative overflow-hidden h-[100vh] flex items-center">
+          <div className="  container mx-auto text-center max-w-4xl relative">
             <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-purple-900/40 to-teal-900/30 px-4 py-2 rounded-full text-sm font-medium text-purple-300 mb-6 border border-purple-500/20">
               <Zap className="w-4 h-4 text-purple-300" />
               <span>AI-Powered Interview Practice</span>
