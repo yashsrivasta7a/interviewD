@@ -15,20 +15,6 @@ import { Textarea } from "./textarea";
 import AiInterviewer from "./talkingHead/AiInterviewer";
 import { useAuth0 } from "@auth0/auth0-react";
 
-const nextQuestionStarters = [
-  "Alright, here's the next one:",
-  "Let's keep going — next question:",
-  "Great! Moving on:",
-  "Nice response. Try this next one:",
-  "Okay, here's another question for you:",
-  "You're doing well — answer this:",
-  "Let's continue — next up:",
-  "Cool, now think about this one:",
-  "Appreciate the answer! Next question:",
-  "Great insight — try this next:",
-  "Awesome — here's the next question:",
-];
-
 const allRoles = [
   "Software Engineer",
   "Frontend Developer",
@@ -92,6 +78,8 @@ export default function Mentor() {
   const [isListening, setIsListening] = useState(false);
   const [isCameraOn, setIsCameraOn] = useState(false);
   const [messages, setMessages] = useState([]);
+  const [warningCount, setWarningCount] = useState(0);
+  const [lastWarningTime, setLastWarningTime] = useState(null);
   const [currentInput, setCurrentInput] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
   const [selectedLevel, setSelectedLevel] = useState("");
@@ -110,23 +98,23 @@ export default function Mentor() {
   const [setupStep, setSetupStep] = useState(1);
   const [resumeUploaded, setResumeUploaded] = useState(false);
   
-  // NEW: State for background photo analysis
+  // State for background photo analysis
   const [backgroundAnalyses, setBackgroundAnalyses] = useState([]);
   const [captureCount, setCaptureCount] = useState(0);
+  
+  // NEW: Conversation history for context window
+  const [conversationHistory, setConversationHistory] = useState([]);
 
   const recognitionRef = useRef(null);
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const aiInterviewerRef = useRef(null);
-  
-  // NEW: Ref for background capture interval
   const captureIntervalRef = useRef(null);
 
   useEffect(() => {
     startCamera();
     return () => {
       stopCamera();
-      // Clean up interval on unmount
       if (captureIntervalRef.current) {
         clearInterval(captureIntervalRef.current);
       }
@@ -153,7 +141,6 @@ export default function Mentor() {
     return () => clearInterval(interval);
   }, [isStarted, isComplete, timeLeft]);
 
-  // NEW: Start background photo capture when interview starts
   useEffect(() => {
     if (isStarted && !isComplete && isCameraOn) {
       startBackgroundCapture();
@@ -212,7 +199,6 @@ export default function Mentor() {
 
     const video = videoRef.current;
     
-    // Validate video dimensions
     if (video.videoWidth === 0 || video.videoHeight === 0) {
       console.log("❌ captureImage: Video has no dimensions");
       return null;
@@ -240,22 +226,18 @@ export default function Mentor() {
     }
   };
 
-  // NEW: Background photo capture and analysis
   const startBackgroundCapture = () => {
-    // Clear any existing interval
     if (captureIntervalRef.current) {
       clearInterval(captureIntervalRef.current);
     }
 
     console.log("🎬 Starting background photo capture every 15 seconds");
 
-    // Capture immediately when starting
     captureAndAnalyzeBackground();
 
-    // Then capture every 15 seconds
     captureIntervalRef.current = setInterval(() => {
       captureAndAnalyzeBackground();
-    }, 15000); // 15 seconds
+    }, 15000);
   };
 
   const stopBackgroundCapture = () => {
@@ -273,7 +255,6 @@ export default function Mentor() {
         return;
       }
 
-      // Check if video is actually playing and has dimensions
       if (videoRef.current.readyState < 2) {
         console.log("⚠️ Video not ready yet (readyState:", videoRef.current.readyState + ")");
         return;
@@ -290,7 +271,6 @@ export default function Mentor() {
 
       console.log(`📸 Background Capture #${newCaptureCount} at ${timestamp.toLocaleTimeString()}`);
 
-      // Capture image
       const imageData = captureImage();
       if (!imageData || imageData.length < 1000) {
         console.log("⚠️ Failed to capture valid image data");
@@ -299,7 +279,6 @@ export default function Mentor() {
 
       console.log(`✅ Image captured successfully (${imageData.length} bytes)`);
 
-      // Analyze in background (don't await to avoid blocking)
       analyzeImageInBackground(imageData, newCaptureCount, timestamp);
 
     } catch (error) {
@@ -346,7 +325,6 @@ Be constructive and professional. Keep it concise (2-3 sentences). Please provid
       console.error(`❌ Error analyzing capture #${captureNum}:`, error);
       console.error("Full error:", error.message, error.stack);
       
-      // Store error record with more details
       setBackgroundAnalyses((prev) => [
         ...prev,
         {
@@ -472,6 +450,23 @@ Experience Level: ${level}`;
 
     setInterviewQuestions(questions);
     setIsStarted(true);
+    
+    // Initialize conversation history with system context
+    const systemContext = `You are an experienced professional interviewer conducting a ${selectedLevel} level ${selectedRole} interview. Your role is to:
+- Ask thoughtful follow-up questions based on candidate responses
+- Provide constructive feedback when responses are weak or incomplete
+- Challenge candidates when their answers are lazy or lack depth
+- Encourage elaboration and specific examples
+- Maintain a professional but conversational tone
+- Guide the interview naturally, deciding when to move to the next question
+- React authentically to responses - if something is vague, call it out; if it's impressive, acknowledge it
+
+Interview has ${questions.length} questions total.${resumeData ? `\n\nCandidate Background:\n- Skills: ${resumeData.skills?.join(", ")}\n- Experience: ${resumeData.experience?.map(e => e.title).join(", ")}` : ""}`;
+
+    setConversationHistory([
+      { role: "system", content: systemContext }
+    ]);
+    
     const welcomeMessage = {
       id: Date.now().toString(),
       type: "bot",
@@ -481,7 +476,6 @@ Experience Level: ${level}`;
     setMessages([welcomeMessage]);
     setIsLoading(false);
 
-    // Speak the first question with AI interviewer
     setTimeout(() => {
       if (aiInterviewerRef.current && questions[0]) {
         aiInterviewerRef.current.speakText(questions[0]);
@@ -550,100 +544,201 @@ Experience Level: ${level}`;
 
     setUserResponses((prev) => [...prev, userMessage]);
     setMessages((prev) => [...prev, userMessage]);
+    
+    // Add user message to conversation history
+    const updatedHistory = [
+      ...conversationHistory,
+      { 
+        role: "user", 
+        content: `Question ${currentQuestion + 1}/${interviewQuestions.length}: "${interviewQuestions[currentQuestion]}"\n\nCandidate's Answer: "${currentInput}"`
+      }
+    ];
+    
     setCurrentInput("");
     setIsLoading(true);
 
     try {
-      let botResponse = "";
-      let nextQuestionOnly = "";
+      // First, analyze response for abusive or uncooperative behavior
+      const behaviorCheckPrompt = `As an experienced interviewer, analyze this response for inappropriate behavior:
+Question: "${interviewQuestions[currentQuestion]}"
+Candidate's Answer: "${currentInput}"
 
-      if (currentQuestion < interviewQuestions.length - 1) {
-        const feedbackPrompt = `As an experienced interviewer, provide brief constructive feedback (2-3 sentences) on this candidate's response to the question "${interviewQuestions[currentQuestion]}": "${userMessage.content}". Please provide a clean response without any markdown formatting like ** or *.`;
+Detect ONLY clear instances of:
+1. Abusive language, profanity, or hostile behavior
+2. Complete refusal to engage or answer questions
+3. Deliberately inappropriate or offensive content
 
-        botResponse = await askAzureText(feedbackPrompt);
-        botResponse = botResponse
-          .replace(/\*\*(.*?)\*\*/g, "$1")
-          .replace(/\*(.*?)\*/g, "$1");
+Respond with ONLY one of these exact words:
+- "TERMINATE" if behavior is clearly abusive/inappropriate
+- "WARNING" if behavior is concerning but not severe
+- "ACCEPTABLE" if behavior is professional
 
-        setAiFeedback((prev) => [
-          ...prev,
-          {
+Response:`;
+
+      const behaviorCheck = await askAzureText(behaviorCheckPrompt);
+      
+      if (behaviorCheck.trim() === "TERMINATE") {
+        // End interview due to inappropriate behavior
+        const terminationMessage = {
+          id: Date.now().toString(),
+          type: "assistant",
+          content: "I'm going to have to end this interview due to inappropriate behavior or language. Professional conduct is a requirement for this interview process. The session will now end.",
+          timestamp: new Date(),
+        };
+        
+        setMessages(prev => [...prev, terminationMessage]);
+        setIsComplete(true);
+        setShowResults(true);
+        return;
+      } else if (behaviorCheck.trim() === "WARNING") {
+        // Check if we should issue a warning
+        const currentTime = new Date();
+        const warningCooldown = 2 * 60 * 1000; // 2 minutes cooldown between warnings
+        
+        if (!lastWarningTime || (currentTime - lastWarningTime) > warningCooldown) {
+          setWarningCount(prev => prev + 1);
+          setLastWarningTime(currentTime);
+          
+          // If this is the third warning, end the interview
+          if (warningCount >= 2) {
+            const terminationMessage = {
+              id: Date.now().toString(),
+              type: "assistant",
+              content: "I've had to issue multiple warnings about professional conduct. As this behavior has continued, I'll have to end our interview here. Thank you for your time.",
+              timestamp: new Date(),
+            };
+            
+            setMessages(prev => [...prev, terminationMessage]);
+            setIsComplete(true);
+            setShowResults(true);
+            return;
+          }
+          
+          // Issue a warning message
+          const warningMessage = {
             id: Date.now().toString(),
-            questionNumber: currentQuestion + 1,
-            question: interviewQuestions[currentQuestion],
-            userAnswer: userMessage.content,
-            feedback: botResponse,
+            type: "assistant",
+            content: `I need to pause here and remind you about maintaining professional conduct during this interview. ${
+              warningCount === 0 
+                ? "This is a friendly reminder to engage constructively with the questions."
+                : "This is your second warning. A third instance will end the interview."
+            } Let's continue with your response to the question.`,
             timestamp: new Date(),
-          },
-        ]);
+          };
+          
+          setMessages(prev => [...prev, warningMessage]);
+        }
+      }
 
+      // Continue with normal interview if behavior is acceptable
+      // Build context-aware prompt
+      const interviewContext = `Current Question: ${currentQuestion + 1} of ${interviewQuestions.length}
+Remaining Questions: ${interviewQuestions.slice(currentQuestion + 1).join("\n")}
+
+As an experienced interviewer, analyze the candidate's response and decide how to proceed:
+
+1. If the answer is weak, lazy, incomplete, or lacks depth or isnt related to topic raised:
+   - Provide small constructive criticism 
+   - Ask them to elaborate with specific examples
+   - Challenge vague statements
+   - Example: "That's quite general. Can you walk me through a specific situation where you demonstrated this?"
+
+2. If the answer is vague or surface-level:
+   - Ask probing follow-up questions
+   - Request concrete details, metrics, or outcomes
+   - Example: "You mentioned working on projects - can you describe one in detail? What was your specific role and what technologies did you use?"
+
+3. If the answer is good but could be deeper:
+   - Acknowledge what's strong
+   - Gently push for more depth on interesting points
+   - Example: "That's a solid approach. I'm curious about how you handled [specific aspect]?"
+
+4. If the answer is strong and complete:
+   - Provide brief positive acknowledgment
+   - Naturally transition to the next question
+   - Example: "Excellent answer. I appreciate the specific examples you provided. Let's move on..."
+
+Be conversational and natural. React authentically. Your response should feel like a real interviewer, not scripted.
+
+${currentQuestion < interviewQuestions.length - 1 ? 
+  `When you decide the candidate has sufficiently answered, naturally transition by asking: "${interviewQuestions[currentQuestion + 1]}"` : 
+  "This is the final question. Provide concluding feedback and thank them for their time."}
+
+Respond naturally without markdown formatting.
+Dont give very long responses.`;
+
+      const fullPrompt = `${updatedHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n\n')}\n\n${interviewContext}`;
+
+      // Get AI response with full context
+      const aiResponse = await askAzureText(fullPrompt);
+
+      const cleanResponse = aiResponse
+        .replace(/\*\*(.*?)\*\*/g, "$1")
+        .replace(/\*(.*?)\*/g, "$1")
+        .trim();
+
+      // Update conversation history with AI response
+      setConversationHistory([
+        ...updatedHistory,
+        { role: "assistant", content: cleanResponse }
+      ]);
+
+      // Store feedback
+      setAiFeedback((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          questionNumber: currentQuestion + 1,
+          question: interviewQuestions[currentQuestion],
+          userAnswer: userMessage.content,
+          feedback: cleanResponse,
+          timestamp: new Date(),
+          isFinal: currentQuestion === interviewQuestions.length - 1,
+        },
+      ]);
+
+      // Check if AI decided to move to next question (by including the next question text)
+      const shouldMoveToNext = currentQuestion < interviewQuestions.length - 1 && 
+        cleanResponse.toLowerCase().includes(interviewQuestions[currentQuestion + 1].toLowerCase().substring(0, 30));
+
+      if (shouldMoveToNext) {
         setCurrentQuestion((prev) => prev + 1);
-        const starter =
-          nextQuestionStarters[
-            Math.floor(Math.random() * nextQuestionStarters.length)
-          ];
+      }
 
-        nextQuestionOnly = `${starter} ${
-          interviewQuestions[currentQuestion + 1]
-        }`;
-      } else {
-        const finalFeedbackPrompt = `As an experienced interviewer, provide a brief final assessment (3-4 sentences) of this candidate's overall interview performance based on their responses. Be constructive and encouraging. Please provide a clean response without any markdown formatting like ** or *.`;
-
-        botResponse = await askAzureText(finalFeedbackPrompt);
-        botResponse = botResponse
-          .replace(/\*\*(.*?)\*\*/g, "$1")
-          .replace(/\*(.*?)\*/g, "$1");
-
-        setAiFeedback((prev) => [
-          ...prev,
-          {
-            id: Date.now().toString(),
-            questionNumber: currentQuestion + 1,
-            question: interviewQuestions[currentQuestion],
-            userAnswer: userMessage.content,
-            feedback: botResponse,
-            timestamp: new Date(),
-            isFinal: true,
-          },
-        ]);
-
+      // Handle interview completion
+      if (currentQuestion === interviewQuestions.length - 1) {
         setIsComplete(true);
         setTimeout(() => {
           setShowResults(true);
         }, 2000);
-        nextQuestionOnly =
-          "Thank you for completing the interview! Loading your detailed results...";
       }
 
       const botMessage = {
         id: (Date.now() + 1).toString(),
         type: "bot",
-        content: nextQuestionOnly,
+        content: cleanResponse,
         timestamp: new Date(),
       };
 
       setMessages((prev) => [...prev, botMessage]);
 
-      // Trigger AI to speak the next question
-      if (currentQuestion < interviewQuestions.length - 1 && aiInterviewerRef.current) {
+      // Trigger AI to speak response
+      if (aiInterviewerRef.current) {
         setTimeout(() => {
-          aiInterviewerRef.current.speakText(interviewQuestions[currentQuestion + 1]);
+          aiInterviewerRef.current.speakText(cleanResponse);
         }, 500);
       }
 
-      // NOTE: Removed immediate photo capture here since it's now handled by background interval
     } catch (error) {
       console.error("Error generating response:", error);
-      let fallbackResponse = "";
+      
+      const fallbackResponse = currentQuestion < interviewQuestions.length - 1
+        ? `Thank you for that response. Let me ask you the next question: ${interviewQuestions[currentQuestion + 1]}`
+        : "Thank you for completing the interview! That concludes our session.";
 
       if (currentQuestion < interviewQuestions.length - 1) {
         setCurrentQuestion((prev) => prev + 1);
-        fallbackResponse = `Thank you for that response. Let me ask you the next question: ${
-          interviewQuestions[currentQuestion + 1]
-        }`;
       } else {
-        fallbackResponse =
-          "Thank you for completing the interview! That concludes our session. You've done well.";
         setIsComplete(true);
       }
 
@@ -673,6 +768,7 @@ Experience Level: ${level}`;
     setShowResults(false);
     setBackgroundAnalyses([]);
     setCaptureCount(0);
+    setConversationHistory([]);
   };
 
   const handleResumeAnalysis = (analysisData) => {
@@ -691,7 +787,7 @@ Experience Level: ${level}`;
         timer={timer}
         timeLeft={timeLeft}
         onStartNewInterview={resetInterview}
-        backgroundAnalyses={backgroundAnalyses} // NEW: Pass background analyses to results
+        backgroundAnalyses={backgroundAnalyses}
       />
     );
   }
@@ -764,9 +860,7 @@ Experience Level: ${level}`;
       />
 
       <div className="container mx-auto px-4 py-6 max-w-7xl">
-        {/* Top Section - Two Windows Side by Side */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          {/* Left Window - AI Interviewer */}
           <Card className="border-slate-200 shadow-lg bg-white/80 backdrop-blur-sm">
             <CardHeader className="bg-gradient-to-r from-purple-50 to-teal-50 border-b border-slate-100">
               <CardTitle className="text-lg text-slate-900 flex items-center space-x-2">
@@ -784,13 +878,11 @@ Experience Level: ${level}`;
             </CardContent>
           </Card>
 
-          {/* Right Window - User's Camera */}
           <Card className="border-slate-200 shadow-lg bg-white/80 backdrop-blur-sm">
             <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-slate-100">
               <CardTitle className="text-lg text-slate-900 flex items-center space-x-2">
                 <Camera className="w-5 h-5 text-blue-600" />
                 <span>Your Video</span>
-                {/* NEW: Background capture indicator */}
                 {isStarted && !isComplete && isCameraOn && (
                   <span className="ml-auto text-xs text-green-600 flex items-center gap-1">
                     <span className="w-2 h-2 bg-green-600 rounded-full animate-pulse"></span>
@@ -838,7 +930,6 @@ Experience Level: ${level}`;
           </Card>
         </div>
 
-        {/* Bottom Section - Answer Input Area */}
         <Card className="border-slate-200 shadow-lg bg-white/80 backdrop-blur-sm">
           <CardHeader className="bg-gradient-to-r from-purple-50 to-teal-50 border-b border-slate-200">
             <div className="flex items-center justify-between">
@@ -863,10 +954,6 @@ Experience Level: ${level}`;
             </div>
           </CardHeader>
           <CardContent className="p-6">
-            {/* Current Question Display */}
-           
-
-            {/* Messages Display */}
             <div className="mb-4 max-h-[200px] overflow-y-auto space-y-3 p-4 bg-slate-50 rounded-lg">
               {messages.slice(-3).map((message) => (
                 <div
@@ -902,7 +989,6 @@ Experience Level: ${level}`;
               )}
             </div>
 
-            {/* Input Area */}
             {!isComplete && (
               <div className="space-y-3">
                 <div className="flex space-x-3">
