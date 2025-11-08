@@ -51,6 +51,12 @@ const nextQuestionStarters = [
   "Awesome — here’s the next question:",
 ];
 
+// Import step components
+import Step1RoleSelection from './Step1RoleSelection';
+import Step2Guidelines from './Step2Guidelines';
+import Step3ResumeUpload from './Step3ResumeUpload';
+import InterviewSession from './InterviewSession';
+
 export default function Mentor() {
   const allRoles = [
     "Software Engineer",
@@ -597,216 +603,82 @@ Experience Level: ${level}`;
   if (!isStarted) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-teal-50 to-slate-50">
-      <header className="border-b border-slate-200/60 bg-white/90 backdrop-blur-md shadow-sm relative">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between relative">
-          <Link
-            to="/"
-            className="flex items-center space-x-2 text-slate-600 hover:text-purple-700 transition-colors group"
-          >
-            <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-            <span className="font-medium">Back to Home</span>
-          </Link>
+        <header className="border-b border-slate-200/60 bg-white/90 backdrop-blur-md shadow-sm relative">
+          <div className="container mx-auto px-4 py-4 flex items-center justify-between relative">
+            <Link
+              to="/"
+              className="flex items-center space-x-2 text-slate-600 hover:text-purple-700 transition-colors group"
+            >
+              <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+              <span className="font-medium">Back to Home</span>
+            </Link>
 
-          <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center space-x-2">
-            <div className="w-6 h-6 bg-gradient-to-br from-purple-600 to-teal-600 rounded-lg flex items-center justify-center">
-              <Brain className="w-4 h-4 text-white" />
+            <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center space-x-2">
+              <div className="w-6 h-6 bg-gradient-to-br from-purple-600 to-teal-600 rounded-lg flex items-center justify-center">
+                <Brain className="w-4 h-4 text-white" />
+              </div>
+              <h1 className="text-center text-xl font-bold text-slate-900">
+                AI Interview Setup
+              </h1>
             </div>
-            <h1 className="text-center text-xl font-bold text-slate-900">
-              AI Interview Setup
-            </h1>
+
+            <div className="flex items-center gap-4"></div>
           </div>
+        </header>
 
-          <div className="flex items-center gap-4"></div>
-        </div>
-      </header>
-
-      <div className="container mx-auto px-4 py-12">
-        <div className="max-w-2xl mx-auto">
-          <Card className="border-slate-200 shadow-xl bg-white/80 backdrop-blur-sm">
-            <CardHeader className="text-center bg-gradient-to-r from-purple-50 to-teal-50 border-b border-slate-100">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                <Target className="w-8 h-8 text-white" />
-              </div>
-              <CardTitle className="text-2xl text-slate-900">
-                {setupStep === 1 && "Setup Your AI Mock Interview"}
-                {setupStep === 2 && "Interview Guidelines"}
-                {setupStep === 3 && "Upload Your Resume"}
-              </CardTitle>
-              <p className="text-slate-600">
-                {setupStep === 1 && "Choose your role and experience level"}
-                {setupStep === 2 && "Review and accept the guidelines"}
-                {setupStep === 3 && "Enhance your interview with your resume"}
-              </p>
-            </CardHeader>
-            
-            <CardContent className="space-y-6 p-8">
-              {setupStep === 1 && (
-                <>
-                  <div className="mt-5">
-                    <label className="block text-sm font-medium text-slate-900 mb-3">
-                      What role are you interviewing for?
-                    </label>
-                    <div className="relative" ref={roleDropdownRef}>
-                      <input
-                        type="text"
-                        value={selectedRole || roleSearchTerm}
-                        onChange={(e) => {
-                          setRoleSearchTerm(e.target.value);
-                          setSelectedRole("");
-                          setShowRoleDropdown(true);
-                        }}
-                        onFocus={() => setShowRoleDropdown(true)}
-                        placeholder="Search for a role..."
-                        className="w-full p-3 rounded border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-400"
-                      />
-                      {showRoleDropdown &&
-                          (roleSearchTerm || !selectedRole) && (
-                            <div className="absolute z-50 w-full mt-1 bg-white border border-slate-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                              {filteredRoles.length > 0 ? (
-                                filteredRoles.map((role, index) => (
-                                  <div
-                                    key={index}
-                                    onClick={() => {
-                                      setSelectedRole(role);
-                                      setRoleSearchTerm("");
-                                      setShowRoleDropdown(false);
-                                    }}
-                                    className="px-4 py-3 hover:bg-purple-50 cursor-pointer text-slate-900 border-b border-slate-100 last:border-b-0"
-                                  >
-                                    {role}
-                                  </div>
-                                ))
-                              ) : (
-                                <div className="px-4 py-3 text-slate-500 italic">
-                                  No roles found matching "{roleSearchTerm}"
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        {selectedRole && (
-                          <div className="mt-2 flex items-center space-x-2">
-                            <div className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
-                              Selected: {selectedRole}
-                            </div>
-                            <button
-                              onClick={() => {
-                                setSelectedRole("");
-                                setRoleSearchTerm("");
-                              }}
-                              className="text-slate-500 hover:text-red-500 text-sm"
-                            >
-                              Clear
-                            </button>
-                          </div>
-                        )}
-                    </div>
-                  </div>
-
-                  <div className="mt-5">
-                    <label className="block text-sm font-medium text-slate-900 mb-3">
-                      What is your experience level?
-                    </label>
-                    <div className="grid grid-cols-2 gap-4">
-                      {["Entry Level", "Mid Level", "Senior Level", "Executive Level"].map(
-                        (level) => (
-                          <button
-                            key={level}
-                            onClick={() => setSelectedLevel(level)}
-                            className={`p-4 rounded-lg border-2 transition-all duration-200 ${
-                              selectedLevel === level
-                                ? "border-purple-600 bg-purple-50 text-purple-700"
-                                : "border-slate-200 hover:border-purple-300 hover:bg-purple-50/50"
-                            }`}
-                          >
-                            {level}
-                          </button>
-                        )
-                      )}
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {setupStep === 2 && (
-                <div className="space-y-6">
-                  <Card className="border border-slate-200 shadow-lg bg-white/80 backdrop-blur-lg mx-auto mt-7 max-w-xl">
-                      <CardHeader className="bg-gradient-to-r from-purple-50 to-purple-100 border-b border-slate-100 px-6 py-4">
-                        <CardTitle className="text-lg text-slate-900 flex items-center space-x-2">
-                          <Shield className="w-5 h-5 text-purple-600" />
-                          <span>Terms & Interview Etiquette</span>
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="p-6">
-                        <ul className="mt-4 text-sm text-slate-700 space-y-3 list-disc pl-5">
-                          <li>
-                            Ensure you are in a well-lit environment for clear
-                            video analysis.
-                          </li>
-                          <li>
-                            Maintain a good posture: sit upright and face the
-                            camera directly.
-                          </li>
-                          <li>
-                            Dress appropriately as you would for a real
-                            interview.
-                          </li>
-                          <li>Minimize background noise and distractions.</li>
-                          <li>Be prepared with a notepad and pen if needed.</li>
-                          <li>Keep your mobile phone on silent mode.</li>
-                          <li>Be honest and authentic in your responses.</li>
-                          <li>
-                            By starting, you agree to these terms and to being
-                            recorded for feedback purposes.
-                          </li>
-                        </ul>
-                      </CardContent>
-                    </Card>
+        <div className="container mx-auto px-4 py-12">
+          <div className="max-w-2xl mx-auto">
+            <Card className="border-slate-200 shadow-xl bg-white/80 backdrop-blur-sm">
+              <CardHeader className="text-center bg-gradient-to-r from-purple-50 to-teal-50 border-b border-slate-100">
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <Target className="w-8 h-8 text-white" />
                 </div>
-              )}
-
-              {setupStep === 3 && (
-                <div className="space-y-6">
-                  <p className="text-gray-600">
-                    Upload your resume to get more personalized interview questions.
-                  </p>
-                  <ResumeParser 
-                    onAnalysisComplete={handleResumeAnalysis}
+                <CardTitle className="text-2xl text-slate-900">
+                  {setupStep === 1 && "Setup Your AI Mock Interview"}
+                  {setupStep === 2 && "Interview Guidelines"}
+                  {setupStep === 3 && "Upload Your Resume"}
+                </CardTitle>
+                <p className="text-slate-600">
+                  {setupStep === 1 && "Choose your role and experience level"}
+                  {setupStep === 2 && "Review and accept the guidelines"}
+                  {setupStep === 3 && "Enhance your interview with your resume"}
+                </p>
+              </CardHeader>
+              
+              <CardContent className="space-y-6 p-8">
+                {setupStep === 1 && (
+                  <Step1RoleSelection
+                    selectedRole={selectedRole}
+                    setSelectedRole={setSelectedRole}
+                    selectedLevel={selectedLevel}
+                    setSelectedLevel={setSelectedLevel}
+                    roleSearchTerm={roleSearchTerm}
+                    setRoleSearchTerm={setRoleSearchTerm}
+                    showRoleDropdown={showRoleDropdown}
+                    setShowRoleDropdown={setShowRoleDropdown}
+                    allRoles={allRoles}
+                    onContinue={() => setSetupStep(2)}
                   />
-                </div>
-              )}
-
-              <div className="flex justify-between mt-8">
-                {setupStep > 1 && (
-                  <Button
-                    onClick={() => setSetupStep((prev) => prev - 1)}
-                    className="bg-slate-100 hover:bg-slate-200 text-slate-700"
-                  >
-                    Back
-                  </Button>
                 )}
-                
-                <Button
-                  onClick={() => {
-                    if (setupStep === 1 && selectedRole && selectedLevel) {
-                      setSetupStep(2);
-                    } else if (setupStep === 2) {
-                      setSetupStep(3);
-                    }
-                  }}
-                  disabled={
-                    (setupStep === 1 && (!selectedRole || !selectedLevel)) ||
-                    (setupStep === 3 && !resumeUploaded)
-                  }
-                  className="bg-gradient-to-r from-purple-600 to-violet-700 hover:from-purple-700 hover:to-violet-800 text-white ml-auto"
-                >
-                  {setupStep === 3 ? "Start Interview" : "Continue"}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+
+                {setupStep === 2 && (
+                  <Step2Guidelines
+                    onBack={() => setSetupStep(1)}
+                    onContinue={() => setSetupStep(3)}
+                  />
+                )}
+
+                {setupStep === 3 && (
+                  <Step3ResumeUpload
+                    onBack={() => setSetupStep(2)}
+                    onResumeAnalysis={handleResumeAnalysis}
+                  />
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
-    </div>
     );
   }
 
