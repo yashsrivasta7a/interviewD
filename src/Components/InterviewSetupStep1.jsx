@@ -145,12 +145,22 @@ export default function InterviewSetupStep1({
         <div className="flex justify-end mt-8">
           <Button
             onClick={onNext}
-            disabled={!selectedRole || !selectedLevel}
-            className="bg-gradient-to-r from-purple-600 to-violet-700 hover:from-purple-700 hover:to-violet-800 text-white"
+            disabled={!selectedRole || !selectedLevel || !resumeUploaded}
+            className="bg-gradient-to-r from-purple-600 to-violet-700 hover:from-purple-700 hover:to-violet-800 text-white disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Continue
           </Button>
         </div>
+        
+        {(!selectedRole || !selectedLevel || !resumeUploaded) && (
+          <div className="mt-2 text-center">
+            <p className="text-sm text-slate-600">
+              {!selectedRole && "Please select a role. "}
+              {!selectedLevel && "Please select an experience level. "}
+              {!resumeUploaded && "Please upload and parse your resume. "}
+            </p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

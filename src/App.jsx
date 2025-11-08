@@ -10,6 +10,7 @@ import ProtectedRoute from "./Components/ProtectedRoute.jsx";
 import ResumeParser from "./Utils/ResumeParser.jsx";
 import CodeEditor from "./Components/CodeEditor.jsx";
 import GradientBackground from "./Components/UI/GradientBackground.jsx";
+import AtsCheck from "./Components/AtsCheck.jsx";
 
 function App() {
   const { isLoading } = useAuth0();
@@ -35,6 +36,7 @@ function App() {
             <Route path="/auth" element={<Auth />} />
             <Route path="/" element={<MainPage />} />
             <Route path="/ResumeParser" element={<ResumeParser />} />
+            <Route path="/ats-check" element={<AtsCheck />} />
             <Route path="/CodeEditor" element={<CodeEditor />} />
             <Route
               path="/interview"
