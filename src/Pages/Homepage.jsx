@@ -14,7 +14,7 @@ import {
 import { Link } from "react-router-dom";
 import GradientBackground from "../Components/UI/GradientBackground";
 import PillNav from "../Components/navbar";
-import logo from '/test1.png';
+import logo from '/favicon.png';
 
 export default function HomePage() {
   return (
