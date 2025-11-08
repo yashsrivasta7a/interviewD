@@ -14,7 +14,7 @@ const ttsClient = new OpenAI({
   dangerouslyAllowBrowser: true
 });
 
-export async function generateSpeech(text, voice = "alloy") {
+export async function generateSpeech(text, voice = "echo") {
   try {
     const response = await ttsClient.audio.speech.create({
       model: ttsDeploymentName,
