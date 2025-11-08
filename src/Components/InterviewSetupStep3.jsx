@@ -24,9 +24,7 @@ export default function InterviewSetupStep3({
       </CardHeader>
 
       <CardContent className="space-y-6 p-8">
-        <p className="text-gray-600">
-          Upload your resume to get more personalized interview questions.
-        </p>
+        
         <ResumeParser onAnalysisComplete={onAnalysisComplete} />
 
         <div className="flex justify-between mt-8">

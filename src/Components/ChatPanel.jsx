@@ -1,8 +1,9 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { Button } from "./button";
 import { Card, CardHeader, CardTitle, CardContent } from "./card";
 import { Textarea } from "./textarea";
-import { Brain, Send, Mic, MicOff } from "lucide-react";
+import { Brain, Send, Mic, MicOff, Code } from "lucide-react";
+import LeetcodeFetch from "./LeetcodeFetch";
 
 export default function ChatPanel({
   messages,
@@ -19,6 +20,7 @@ export default function ChatPanel({
   onFinishInterview,
 }) {
   const messagesEndRef = useRef(null);
+  const [showLeetcode, setShowLeetcode] = useState(false);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -31,13 +33,24 @@ export default function ChatPanel({
   return (
     <Card className="h-[600px] flex flex-col border-slate-200 shadow-xl bg-white/80 backdrop-blur-sm">
       <CardHeader className="bg-gradient-to-r from-purple-50 to-teal-50 border-b border-slate-200">
-        <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-teal-600 rounded-lg flex items-center justify-center">
-            <Brain className="w-5 h-5 text-white" />
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-teal-600 rounded-lg flex items-center justify-center">
+              <Brain className="w-5 h-5 text-white" />
+            </div>
+            <CardTitle className="text-lg text-slate-900">
+              AI Interview Session
+            </CardTitle>
           </div>
-          <CardTitle className="text-lg text-slate-900">
-            AI Interview Session
-          </CardTitle>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowLeetcode(true)}
+            className="flex items-center space-x-2 text-purple-600 hover:text-purple-700 hover:bg-purple-50 transition-all duration-300"
+          >
+            <Code className="w-4 h-4" />
+            <span>LeetCode Profile</span>
+          </Button>
         </div>
       </CardHeader>
 
@@ -86,6 +99,9 @@ export default function ChatPanel({
         )}
         <div ref={messagesEndRef} />
       </CardContent>
+
+      {/* LeetCode Integration */}
+      {showLeetcode && <LeetcodeFetch />}
 
       {!isComplete && (
         <div className="p-4 border-t border-slate-200 bg-slate-50/50">

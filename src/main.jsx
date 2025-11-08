@@ -10,8 +10,12 @@ createRoot(document.getElementById('root')).render(
       domain="interview-d.us.auth0.com"
       clientId="NdOxf91aOpxDslpD6a0TJJer19S4elaU"
       authorizationParams={{
-        redirect_uri: window.location.origin
+        redirect_uri: window.location.origin,
+        audience: `https://interview-d.us.auth0.com/api/v2/`,
+        scope: "openid profile email offline_access"
       }}
+      useRefreshTokens={true}
+      cacheLocation="localstorage"
     >
       <App />
     </Auth0Provider>
