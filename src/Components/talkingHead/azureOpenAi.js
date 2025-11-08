@@ -1,10 +1,10 @@
 import { configDotenv } from "dotenv";
 import OpenAI from "openai";
-configDotenv();
+
 // Azure TTS Configuration
-const ttsEndpoint = process.env.ttsEndpoint;
-const azureopenaiTTS = process.env.azureopenaiTTS;
-const ttsDeploymentName = process.env.ttsDeploymentName;
+const ttsEndpoint = import.meta.env.VITE_ttsEndpoint;
+const azureopenaiTTS = import.meta.env.VITE_azureopenaiTTS;
+const ttsDeploymentName = import.meta.env.VITE_ttsDeploymentName;
 
 const ttsClient = new OpenAI({
   apiKey: azureopenaiTTS,
