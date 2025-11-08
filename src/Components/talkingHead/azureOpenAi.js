@@ -1,14 +1,15 @@
 import OpenAI from "openai";
 
 // Azure TTS Configuration
-
-const ttsDeploymentName = 'tts-1';
+const ttsEndpoint = process.env.ttsEndpoint;
+const azureopenaiTTS = process.env.azureopenaiTTS;
+const ttsDeploymentName = process.env.ttsDeploymentName;
 
 const ttsClient = new OpenAI({
-  apiKey: ttsApiKey,
+  apiKey: azureopenaiTTS,
   baseURL: `${ttsEndpoint}/openai/deployments/${ttsDeploymentName}/audio/speech?api-version=2025-03-01-preview`,
   defaultQuery: { 'api-version': '2024-02-15-preview' },
-  defaultHeaders: { 'api-key': ttsApiKey },
+  defaultHeaders: { 'api-key': azureopenaiTTS },
   dangerouslyAllowBrowser: true
 });
 
