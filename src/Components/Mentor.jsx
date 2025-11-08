@@ -1,131 +1,91 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Button } from "./button";
-import { Badge } from "./badge";
-import { Card, CardHeader, CardTitle, CardContent } from "./card";
-import {
-  Brain,
-  ArrowLeft,
-  Video,
-  VideoOff,
-  Zap,
-  Target,
-  RotateCcw,
-  Send,
-  Mic,
-  MicOff,
-  CheckCircle,
-  Clock,
-  Users,
-  Play,
-  Camera,
-  Shield,
-  Upload,
-  FileText,
-} from "lucide-react";
+import { Brain, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import { askAzureText, askAzureWithImage } from "../Utils/azureOpenAi";
 import InterviewResults from "./InterviewResults";
-import ResumeParser from "../Utils/ResumeParser";
-
-import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-  SelectValue,
-} from "./select";
-import { Textarea } from "./textarea";
+import InterviewSetupStep1 from "./InterviewSetupStep1";
+import InterviewSetupStep2 from "./InterviewSetupStep2";
+import InterviewSetupStep3 from "./InterviewSetupStep3";
+import InterviewHeader from "./InterviewHeader";
+import VideoFeedPanel from "./VideoFeedPanel";
+import ChatPanel from "./ChatPanel";
+import ProgressPanel from "./ProgressPanel";
+import InterviewTipsPanel from "./InterviewTipsPanel";
 
 const nextQuestionStarters = [
-  "Alright, here’s the next one:",
+  "Alright, here's the next one:",
   "Let's keep going — next question:",
   "Great! Moving on:",
   "Nice response. Try this next one:",
-  "Okay, here’s another question for you:",
+  "Okay, here's another question for you:",
   "You're doing well — answer this:",
-  "Let’s continue — next up:",
+  "Let's continue — next up:",
   "Cool, now think about this one:",
   "Appreciate the answer! Next question:",
   "Great insight — try this next:",
-  "Awesome — here’s the next question:",
+  "Awesome — here's the next question:",
 ];
 
-// Import step components
-import Step1RoleSelection from './Step1RoleSelection';
-import Step2Guidelines from './Step2Guidelines';
-import Step3ResumeUpload from './Step3ResumeUpload';
-import InterviewSession from './InterviewSession';
+const allRoles = [
+  "Software Engineer",
+  "Frontend Developer",
+  "Backend Developer",
+  "Full Stack Developer",
+  "Mobile App Developer",
+  "Game Developer",
+  "DevOps Engineer",
+  "Site Reliability Engineer (SRE)",
+  "Software Architect",
+  "Technical Lead",
+  "Data Scientist",
+  "Data Engineer",
+  "Data Analyst",
+  "Machine Learning Engineer",
+  "AI Engineer",
+  "Business Intelligence Analyst",
+  "Cloud Engineer",
+  "Cloud Architect",
+  "AWS Solutions Architect",
+  "Azure Solutions Architect",
+  "Systems Administrator",
+  "Network Engineer",
+  "Infrastructure Engineer",
+  "Cybersecurity Analyst",
+  "Security Engineer",
+  "Penetration Tester",
+  "Information Security Manager",
+  "QA Engineer",
+  "Test Automation Engineer",
+  "Performance Test Engineer",
+  "UX/UI Designer",
+  "UX Designer",
+  "UI Designer",
+  "Product Designer",
+  "Product Manager",
+  "Technical Product Manager",
+  "Project Manager",
+  "Scrum Master",
+  "Agile Coach",
+  "Business Analyst",
+  "Systems Analyst",
+  "IT Business Analyst",
+  "Database Administrator (DBA)",
+  "Database Developer",
+  "API Developer",
+  "Technical Sales Engineer",
+  "Solutions Engineer",
+  "Marketing Manager",
+  "Sales Representative",
+  "Management Consultant",
+  "IT Consultant",
+  "Technology Consultant",
+  "Engineering Manager",
+  "Chief Technology Officer (CTO)",
+  "IT Director",
+];
 
 export default function Mentor() {
-  const allRoles = [
-    "Software Engineer",
-    "Frontend Developer",
-    "Backend Developer",
-    "Full Stack Developer",
-    "Mobile App Developer",
-    "Game Developer",
-    "DevOps Engineer",
-    "Site Reliability Engineer (SRE)",
-    "Software Architect",
-    "Technical Lead",
-
-    "Data Scientist",
-    "Data Engineer",
-    "Data Analyst",
-    "Machine Learning Engineer",
-    "AI Engineer",
-    "Business Intelligence Analyst",
-
-    "Cloud Engineer",
-    "Cloud Architect",
-    "AWS Solutions Architect",
-    "Azure Solutions Architect",
-    "Systems Administrator",
-    "Network Engineer",
-    "Infrastructure Engineer",
-
-    "Cybersecurity Analyst",
-    "Security Engineer",
-    "Penetration Tester",
-    "Information Security Manager",
-
-    "QA Engineer",
-    "Test Automation Engineer",
-    "Performance Test Engineer",
-
-    "UX/UI Designer",
-    "UX Designer",
-    "UI Designer",
-    "Product Designer",
-
-    "Product Manager",
-    "Technical Product Manager",
-    "Project Manager",
-    "Scrum Master",
-    "Agile Coach",
-
-    "Business Analyst",
-    "Systems Analyst",
-    "IT Business Analyst",
-
-    "Database Administrator (DBA)",
-    "Database Developer",
-    "API Developer",
-
-    "Technical Sales Engineer",
-    "Solutions Engineer",
-    "Marketing Manager",
-    "Sales Representative",
-
-    "Management Consultant",
-    "IT Consultant",
-    "Technology Consultant",
-    "Engineering Manager",
-    "Chief Technology Officer (CTO)",
-    "IT Director",
-  ];
-
   const [isStarted, setIsStarted] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isCameraOn, setIsCameraOn] = useState(false);
@@ -139,54 +99,45 @@ export default function Mentor() {
   const [isComplete, setIsComplete] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [interviewQuestions, setInterviewQuestions] = useState([]);
-  const { user, isAuthenticated } = useAuth0();
-  const [timer, setTimer] = useState(null); // total seconds
+  const { user } = useAuth0();
+  const [timer, setTimer] = useState(null);
   const [timeLeft, setTimeLeft] = useState(null);
-  const [userResponses, setUserResponses] = useState([]); // Store user responses
-  const [aiFeedback, setAiFeedback] = useState([]); // Store AI feedback for end display
-  const [showResults, setShowResults] = useState(false); // Show results page
-  const [setupStep, setSetupStep] = useState(1); // 1 = form, 2 = terms, 3 = resume
+  const [userResponses, setUserResponses] = useState([]);
+  const [aiFeedback, setAiFeedback] = useState([]);
+  const [showResults, setShowResults] = useState(false);
+  const [setupStep, setSetupStep] = useState(1);
   const [resumeUploaded, setResumeUploaded] = useState(false);
-  const messagesEndRef = useRef(null);
+
   const recognitionRef = useRef(null);
   const videoRef = useRef(null);
   const streamRef = useRef(null);
-  const roleDropdownRef = useRef(null);
-
-  const filteredRoles = allRoles.filter((role) =>
-    role.toLowerCase().includes(roleSearchTerm.toLowerCase())
-  );
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        roleDropdownRef.current &&
-        !roleDropdownRef.current.contains(event.target)
-      ) {
-        setShowRoleDropdown(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
 
   useEffect(() => {
     startCamera();
     return () => {
-      stopCamera(); // Cleanup on unmount
+      stopCamera();
     };
   }, []);
+
+  useEffect(() => {
+    if (isStarted && interviewQuestions.length > 0) {
+      const minutes = 15;
+      setTimer(minutes * 60);
+      setTimeLeft(minutes * 60);
+    }
+  }, [isStarted, interviewQuestions.length]);
+
+  useEffect(() => {
+    if (!isStarted || isComplete || timeLeft === null) return;
+    if (timeLeft <= 0) {
+      setIsComplete(true);
+      return;
+    }
+    const interval = setInterval(() => {
+      setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [isStarted, isComplete, timeLeft]);
 
   const startCamera = async () => {
     try {
@@ -243,23 +194,39 @@ export default function Mentor() {
     return null;
   };
 
-  const generateInterviewQuestions = async (role, level, numQuestions = 10, resumeData = null) => {
+  const generateInterviewQuestions = async (
+    role,
+    level,
+    numQuestions = 10,
+    resumeData = null
+  ) => {
     try {
-      let candidateInfo = '';
+      let candidateInfo = "";
       if (resumeData) {
         candidateInfo = `
 Candidate Information:
-- Name: ${resumeData.name || 'Not provided'}
-- Skills: ${resumeData.skills?.join(', ') || 'Not provided'}
-- Experience: ${resumeData.experience?.map(exp => 
-  `\n  * ${exp.title} at ${exp.company} (${exp.duration})`).join('') || 'Not provided'}
-- Projects: ${resumeData.projects?.map(proj => 
-  `\n  * ${proj.name}: ${proj.description}`).join('') || 'Not provided'}`;
+- Name: ${resumeData.name || "Not provided"}
+- Skills: ${resumeData.skills?.join(", ") || "Not provided"}
+- Experience: ${
+          resumeData.experience
+            ?.map(
+              (exp) =>
+                `\n  * ${exp.title} at ${exp.company} (${exp.duration})`
+            )
+            .join("") || "Not provided"
+        }
+- Projects: ${
+          resumeData.projects
+            ?.map((proj) => `\n  * ${proj.name}: ${proj.description}`)
+            .join("") || "Not provided"
+        }`;
       }
 
       const prompt = `You are an experienced HR interviewer. Generate exactly ${numQuestions} interview questions for a ${level} level ${role} position. 
 
-${candidateInfo ? `Using the candidate's background:${candidateInfo}
+${
+  candidateInfo
+    ? `Using the candidate's background:${candidateInfo}
 
 Based on their experience and skills, tailor some questions to:
 - Verify their claimed experience and skills
@@ -267,7 +234,9 @@ Based on their experience and skills, tailor some questions to:
 - Explore how their background aligns with the role
 - Challenge them on relevant technical concepts
 
-` : ''}Make the questions:
+`
+    : ""
+}Make the questions:
 - Realistic and relevant to the role
 - Appropriate for the experience level
 - Professional and clear
@@ -284,9 +253,7 @@ Return ONLY the questions, each on a new line, without numbers or bullet points.
 Role: ${role}
 Experience Level: ${level}`;
 
-      console.log("Generating questions with Azure OpenAI...");
       const response = await askAzureText(prompt);
-      console.log("Azure response:", response);
 
       const questions = response
         .split("\n")
@@ -294,13 +261,10 @@ Experience Level: ${level}`;
         .filter((q) => q.length > 0 && q.includes("?"))
         .slice(0, numQuestions);
 
-      console.log("Parsed questions:", questions);
-
       if (questions.length >= 3) {
         return questions;
       }
 
-      console.log("Using fallback questions");
       return questions.length > 0
         ? questions
         : [
@@ -323,31 +287,32 @@ Experience Level: ${level}`;
       ];
     }
   };
+
   const startInterview = async () => {
-  if (!selectedRole || !selectedLevel) return;
+    if (!selectedRole || !selectedLevel) return;
 
-  setIsLoading(true);
-  const savedResumeData = localStorage.getItem('resumeAnalysis');
-  const resumeData = savedResumeData ? JSON.parse(savedResumeData) : null;
-  
-  const questions = await generateInterviewQuestions(
-    selectedRole,
-    selectedLevel,
-    10,
-    resumeData
-  );
+    setIsLoading(true);
+    const savedResumeData = localStorage.getItem("resumeAnalysis");
+    const resumeData = savedResumeData ? JSON.parse(savedResumeData) : null;
 
-  setInterviewQuestions(questions);
-  setIsStarted(true);
-  const welcomeMessage = {
-    id: Date.now().toString(),
-    type: "bot",
-    content: `Hello. I'm your interviewer for a ${selectedLevel} level ${selectedRole} position. We'll have ${questions.length} questions tailored to your background. Let's begin with: ${questions[0]}`,
-    timestamp: new Date(),
+    const questions = await generateInterviewQuestions(
+      selectedRole,
+      selectedLevel,
+      10,
+      resumeData
+    );
+
+    setInterviewQuestions(questions);
+    setIsStarted(true);
+    const welcomeMessage = {
+      id: Date.now().toString(),
+      type: "bot",
+      content: `Hello. I'm your interviewer for a ${selectedLevel} level ${selectedRole} position. We'll have ${questions.length} questions tailored to your background. Let's begin with: ${questions[0]}`,
+      timestamp: new Date(),
+    };
+    setMessages([welcomeMessage]);
+    setIsLoading(false);
   };
-  setMessages([welcomeMessage]);
-  setIsLoading(false);
-};
 
   const handleVoiceInput = () => {
     const SpeechRecognition =
@@ -365,7 +330,6 @@ Experience Level: ${level}`;
     recognition.lang = "en-US";
 
     recognition.onstart = () => {
-      console.log("🎤 Listening...");
       setIsListening(true);
       recognitionRef.current = recognition;
     };
@@ -385,18 +349,19 @@ Experience Level: ${level}`;
     };
 
     recognition.onend = () => {
-      console.log("🎤 Stopped");
       setIsListening(false);
       recognitionRef.current = null;
     };
 
     recognition.start();
   };
+
   const stopListening = () => {
     if (recognitionRef.current) {
       recognitionRef.current.abort();
     }
   };
+
   const sendMessage = async () => {
     if (!currentInput.trim()) return;
 
@@ -483,6 +448,7 @@ Experience Level: ${level}`;
       };
 
       setMessages((prev) => [...prev, botMessage]);
+
       if (videoRef.current && videoRef.current.videoWidth > 0) {
         const img = captureImage();
         if (img) {
@@ -539,6 +505,7 @@ Experience Level: ${level}`;
       setIsLoading(false);
     }
   };
+
   const resetInterview = () => {
     setIsStarted(false);
     setMessages([]);
@@ -549,35 +516,6 @@ Experience Level: ${level}`;
     setUserResponses([]);
     setAiFeedback([]);
     setShowResults(false);
-  };
-
-  // Auth0 handles authentication state automatically
-  useEffect(() => {
-    if (isStarted && interviewQuestions.length > 0) {
-      const minutes = 15;
-      setTimer(minutes * 60);
-      setTimeLeft(minutes * 60);
-    }
-  }, [isStarted, interviewQuestions.length]);
-
-  useEffect(() => {
-    if (!isStarted || isComplete || timeLeft === null) return;
-    if (timeLeft <= 0) {
-      setIsComplete(true);
-      return;
-    }
-    const interval = setInterval(() => {
-      setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [isStarted, isComplete, timeLeft]);
-
-  const formatTime = (secs) => {
-    const m = Math.floor(secs / 60)
-      .toString()
-      .padStart(2, "0");
-    const s = (secs % 60).toString().padStart(2, "0");
-    return `${m}:${s}`;
   };
 
   const handleResumeAnalysis = (analysisData) => {
@@ -621,61 +559,40 @@ Experience Level: ${level}`;
                 AI Interview Setup
               </h1>
             </div>
-
-            <div className="flex items-center gap-4"></div>
           </div>
         </header>
 
         <div className="container mx-auto px-4 py-12">
           <div className="max-w-2xl mx-auto">
-            <Card className="border-slate-200 shadow-xl bg-white/80 backdrop-blur-sm">
-              <CardHeader className="text-center bg-gradient-to-r from-purple-50 to-teal-50 border-b border-slate-100">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                  <Target className="w-8 h-8 text-white" />
-                </div>
-                <CardTitle className="text-2xl text-slate-900">
-                  {setupStep === 1 && "Setup Your AI Mock Interview"}
-                  {setupStep === 2 && "Interview Guidelines"}
-                  {setupStep === 3 && "Upload Your Resume"}
-                </CardTitle>
-                <p className="text-slate-600">
-                  {setupStep === 1 && "Choose your role and experience level"}
-                  {setupStep === 2 && "Review and accept the guidelines"}
-                  {setupStep === 3 && "Enhance your interview with your resume"}
-                </p>
-              </CardHeader>
-              
-              <CardContent className="space-y-6 p-8">
-                {setupStep === 1 && (
-                  <Step1RoleSelection
-                    selectedRole={selectedRole}
-                    setSelectedRole={setSelectedRole}
-                    selectedLevel={selectedLevel}
-                    setSelectedLevel={setSelectedLevel}
-                    roleSearchTerm={roleSearchTerm}
-                    setRoleSearchTerm={setRoleSearchTerm}
-                    showRoleDropdown={showRoleDropdown}
-                    setShowRoleDropdown={setShowRoleDropdown}
-                    allRoles={allRoles}
-                    onContinue={() => setSetupStep(2)}
-                  />
-                )}
+            {setupStep === 1 && (
+              <InterviewSetupStep1
+                selectedRole={selectedRole}
+                setSelectedRole={setSelectedRole}
+                selectedLevel={selectedLevel}
+                setSelectedLevel={setSelectedLevel}
+                roleSearchTerm={roleSearchTerm}
+                setRoleSearchTerm={setRoleSearchTerm}
+                showRoleDropdown={showRoleDropdown}
+                setShowRoleDropdown={setShowRoleDropdown}
+                allRoles={allRoles}
+                onNext={() => setSetupStep(2)}
+              />
+            )}
 
-                {setupStep === 2 && (
-                  <Step2Guidelines
-                    onBack={() => setSetupStep(1)}
-                    onContinue={() => setSetupStep(3)}
-                  />
-                )}
+            {setupStep === 2 && (
+              <InterviewSetupStep2
+                onBack={() => setSetupStep(1)}
+                onNext={() => setSetupStep(3)}
+              />
+            )}
 
-                {setupStep === 3 && (
-                  <Step3ResumeUpload
-                    onBack={() => setSetupStep(2)}
-                    onResumeAnalysis={handleResumeAnalysis}
-                  />
-                )}
-              </CardContent>
-            </Card>
+            {setupStep === 3 && (
+              <InterviewSetupStep3
+                onBack={() => setSetupStep(2)}
+                onAnalysisComplete={handleResumeAnalysis}
+                resumeUploaded={resumeUploaded}
+              />
+            )}
           </div>
         </div>
       </div>
@@ -684,314 +601,53 @@ Experience Level: ${level}`;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-teal-50 to-slate-50">
-      <header className="border-b border-slate-200/60 bg-white/90 backdrop-blur-md shadow-sm">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Button
-              variant="ghost"
-              onClick={resetInterview}
-              className="text-slate-600 hover:text-purple-700 hover:bg-purple-50 transition-all duration-300"
-            >
-              <ArrowLeft className="w-5 h-5 mr-2" />
-              Reset
-            </Button>
-            <div className="flex items-center space-x-2">
-              <Badge
-                variant="outline"
-                className="border-purple-300 text-purple-700 bg-purple-50"
-              >
-                {selectedRole}
-              </Badge>
-              <Badge
-                variant="outline"
-                className="border-teal-300 text-teal-700 bg-teal-50"
-              >
-                {selectedLevel}
-              </Badge>
-              {isCameraOn && (
-                <Badge
-                  variant="outline"
-                  className="border-green-300 text-green-700 bg-green-50"
-                >
-                  <Video className="w-3 h-3 mr-1" />
-                  Camera Active
-                </Badge>
-              )}
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            {isStarted && (
-              <button
-                type="button"
-                className="flex items-center gap-2 px-5 py-2 rounded-full font-bold text-lg shadow-lg border-2 border-white focus:outline-none"
-                style={{
-                  background:
-                    "linear-gradient(135deg, #8b5cf6 0%, #14b8a6 100%)", // purple to teal
-                  color: "#fff",
-                  boxShadow: "0 0 16px #8b5cf6, 0 0 32px #14b8a6",
-                  transition: "box-shadow 0.3s",
-                }}
-                tabIndex={-1}
-                aria-label="Interview Timer"
-              >
-                <Clock className="w-6 h-6 text-white drop-shadow" />
-                <span className="tracking-widest">
-                  {formatTime(timeLeft ?? 0)}
-                </span>
-              </button>
-            )}
-            {!user && (
-              <Link to="/auth">
-                <Button
-                  variant="outline"
-                  className="border-slate-300 text-purple-700 hover:bg-purple-50 active:bg-purple-200 focus:bg-purple-200 px-6 py-2 font-semibold shadow-sm hover:shadow-md transition-all duration-300"
-                >
-                  Login / Sign In
-                </Button>
-              </Link>
-            )}
-          </div>
-        </div>
-      </header>
+      <InterviewHeader
+        isStarted={isStarted}
+        selectedRole={selectedRole}
+        selectedLevel={selectedLevel}
+        isCameraOn={isCameraOn}
+        timeLeft={timeLeft}
+        user={user}
+        onReset={resetInterview}
+      />
 
       <div className="container mx-auto px-4 py-6 max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <div className="lg:col-span-1">
-            <Card className="border-slate-200 shadow-lg bg-white/80 backdrop-blur-sm">
-              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-slate-100">
-                <CardTitle className="text-lg text-slate-900 flex items-center space-x-2">
-                  <Camera className="w-5 h-5 text-blue-600" />
-                  <span>Video Feed</span>
-                </CardTitle>
-              </CardHeader>{" "}
-              <CardContent className="p-4">
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  muted
-                  playsInline
-                  className="w-full h-48 rounded-lg border border-slate-200 bg-slate-100 object-cover mt-4"
-                />
-                <div className="flex items-center justify-between mt-4">
-                  <p className="text-xs text-slate-500">
-                    Used for posture analysis feedback
-                  </p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={isCameraOn ? stopCamera : startCamera}
-                    className={`transition-all duration-300 ${
-                      isCameraOn
-                        ? "border-green-300 text-green-700 bg-green-50 hover:bg-green-100"
-                        : "border-slate-300 text-slate-600 hover:bg-slate-50"
-                    }`}
-                  >
-                    {isCameraOn ? (
-                      <>
-                        <VideoOff className="w-4 h-4 mr-1" />
-                        Stop
-                      </>
-                    ) : (
-                      <>
-                        <Video className="w-4 h-4 mr-1" />
-                        Start
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <VideoFeedPanel
+              videoRef={videoRef}
+              isCameraOn={isCameraOn}
+              onStartCamera={startCamera}
+              onStopCamera={stopCamera}
+            />
           </div>
 
           <div className="lg:col-span-2">
-            <Card className="h-[600px] flex flex-col border-slate-200 shadow-xl bg-white/80 backdrop-blur-sm">
-              {" "}
-              <CardHeader className="bg-gradient-to-r from-purple-50 to-teal-50 border-b border-slate-200">
-                <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-teal-600 rounded-lg flex items-center justify-center">
-                    <Brain className="w-5 h-5 text-white" />
-                  </div>
-                  <CardTitle className="text-lg text-slate-900">
-                    AI Interview Session
-                  </CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent className="flex-1 overflow-y-auto p-4 space-y-4 mt-4">
-                {messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex ${
-                      message.type === "user" ? "justify-end" : "justify-start"
-                    }`}
-                  >
-                    <div
-                      className={`max-w-[80%] p-4 rounded-2xl shadow-sm ${
-                        message.type === "user"
-                          ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white"
-                          : "bg-white border border-slate-200 text-slate-900"
-                      }`}
-                    >
-                      <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                        {message.content}
-                      </p>
-                      <p
-                        className={`text-xs mt-2 ${
-                          message.type === "user"
-                            ? "text-purple-200"
-                            : "text-slate-500"
-                        }`}
-                      >
-                        {message.timestamp.toLocaleTimeString()}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-                {isLoading && (
-                  <div className="flex justify-start">
-                    <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-                      <div className="flex items-center space-x-2">
-                        <Brain className="w-4 h-4 text-purple-600 animate-pulse" />
-                        <span className="text-sm text-slate-600">
-                          AI is thinking...
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                <div ref={messagesEndRef} />
-              </CardContent>{" "}
-              {!isComplete && (
-                <div className="p-4 border-t border-slate-200 bg-slate-50/50">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="text-sm text-slate-600">
-                      Question {currentQuestion + 1} of{" "}
-                      {interviewQuestions.length}
-                    </div>{" "}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setIsComplete(true);
-                        setShowResults(true);
-                      }}
-                      className="text-slate-600 hover:text-red-600 hover:border-red-300 hover:bg-red-50 transition-all duration-300"
-                    >
-                      Finish Interview
-                    </Button>{" "}
-                  </div>
-                  <div className="flex space-x-3">
-                    <Textarea
-                      value={currentInput}
-                      onChange={(e) => setCurrentInput(e.target.value)}
-                      placeholder="Type your response here or use voice input..."
-                      className="flex-1 min-h-[60px] border-slate-300 focus:border-purple-500 focus:ring-purple-500/20 bg-white"
-                      onKeyPress={(e) => {
-                        if (e.key === "Enter" && !e.shiftKey) {
-                          e.preventDefault();
-                          sendMessage();
-                        }
-                      }}
-                    />
-                    <div className="flex flex-col space-y-2">
-                      <Button
-                        onClick={sendMessage}
-                        disabled={!currentInput.trim() || isLoading}
-                        className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white shadow-lg hover:shadow-xl transition-all duration-300"
-                        size="sm"
-                      >
-                        <Send className="w-4 h-4" />
-                      </Button>
-                      {!isListening ? (
-                        <Button
-                          onClick={handleVoiceInput}
-                          className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-300"
-                          size="sm"
-                        >
-                          <Mic className="w-4 h-4" />
-                        </Button>
-                      ) : (
-                        <Button
-                          onClick={stopListening}
-                          className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white shadow-lg hover:shadow-xl transition-all duration-300"
-                          size="sm"
-                        >
-                          <MicOff className="w-4 h-4" />
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                  {isListening && (
-                    <div className="text-sm text-slate-600 animate-pulse mt-2 text-center">
-                      🎤 Listening... Speak your answer now
-                    </div>
-                  )}
-                </div>
-              )}
-            </Card>
+            <ChatPanel
+              messages={messages}
+              currentInput={currentInput}
+              setCurrentInput={setCurrentInput}
+              isLoading={isLoading}
+              isListening={isListening}
+              currentQuestion={currentQuestion}
+              totalQuestions={interviewQuestions.length}
+              isComplete={isComplete}
+              onSendMessage={sendMessage}
+              onVoiceInput={handleVoiceInput}
+              onStopListening={stopListening}
+              onFinishInterview={() => {
+                setIsComplete(true);
+                setShowResults(true);
+              }}
+            />
           </div>
 
           <div className="space-y-6">
-            <Card className="border-slate-200 shadow-lg bg-white/80 backdrop-blur-sm">
-              <CardHeader className="bg-gradient-to-r from-teal-50 to-emerald-50 border-b border-slate-100">
-                <CardTitle className="text-lg text-slate-900 flex items-center space-x-2">
-                  <Target className="w-5 h-5 text-teal-600" />
-                  <span>Progress</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6 mt-4">
-                <div className="space-y-4">
-                  {" "}
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-600">Questions Completed</span>
-                    <span className="text-slate-900 font-semibold">
-                      {userResponses.length} / {interviewQuestions.length}
-                    </span>
-                  </div>
-                  <div className="w-full bg-slate-200 rounded-full h-3">
-                    <div
-                      className="bg-gradient-to-r from-teal-500 to-emerald-500 h-3 rounded-full transition-all duration-500"
-                      style={{
-                        width: `${
-                          (userResponses.length / interviewQuestions.length) *
-                          100
-                        }%`,
-                      }}
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-slate-200 shadow-lg bg-white/80 backdrop-blur-sm">
-              <CardHeader className="bg-gradient-to-r from-purple-50 to-coral-50 border-b border-slate-100">
-                <CardTitle className="text-lg text-slate-900 flex items-center space-x-2">
-                  <Zap className="w-5 h-5 text-purple-600" />
-                  <span>Interview Tips</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6">
-                <ul className="text-sm text-slate-700 space-y-3 mt-3">
-                  <li className="flex items-start space-x-2">
-                    <div className="w-1.5 h-1.5 bg-purple-500 rounded-full mt-2 flex-shrink-0"></div>
-                    <span>Be specific with examples</span>
-                  </li>
-                  <li className="flex items-start space-x-2">
-                    <div className="w-1.5 h-1.5 bg-teal-500 rounded-full mt-2 flex-shrink-0"></div>
-                    <span>
-                      Use the STAR method (Situation, Task, Action, Result)
-                    </span>
-                  </li>
-                  <li className="flex items-start space-x-2">
-                    <div className="w-1.5 h-1.5 bg-purple-500 rounded-full mt-2 flex-shrink-0"></div>
-                    <span>Take your time to think</span>
-                  </li>
-                  <li className="flex items-start space-x-2">
-                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full mt-2 flex-shrink-0"></div>
-                    <span>Maintain eye contact and confident body posture</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
+            <ProgressPanel
+              completedQuestions={userResponses.length}
+              totalQuestions={interviewQuestions.length}
+            />
+            <InterviewTipsPanel />
           </div>
         </div>
       </div>
