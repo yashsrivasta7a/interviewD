@@ -209,16 +209,8 @@ Analyze the resume thoroughly and provide detailed insights. If information is m
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <div className="bg-white rounded-lg shadow-lg p-8">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-            <FileText className="w-8 h-8 text-blue-600" />
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Resume Parser</h1>
-          <p className="text-gray-600">
-            Upload your resume in PDF format and let Azure GPT-4 analyze it for you!
-          </p>
-        </div>
+      <div >
+        
 
         {!pdfLoaded && (
           <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">

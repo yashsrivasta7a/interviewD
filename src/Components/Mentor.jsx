@@ -734,21 +734,15 @@ Experience Level: ${level}`;
                 setShowRoleDropdown={setShowRoleDropdown}
                 allRoles={allRoles}
                 onNext={() => setSetupStep(2)}
-              />
-            )}
-
-            {setupStep === 3 && (
-              <InterviewSetupStep2
-                onBack={() => setSetupStep(1)}
-                onNext={() => setSetupStep(3)}
+                onAnalysisComplete={handleResumeAnalysis}
+                resumeUploaded={resumeUploaded}
               />
             )}
 
             {setupStep === 2 && (
-              <InterviewSetupStep3
-                onBack={() => setSetupStep(2)}
-                onAnalysisComplete={handleResumeAnalysis}
-                resumeUploaded={resumeUploaded}
+              <InterviewSetupStep2
+                onBack={() => setSetupStep(1)}
+                onNext={startInterview}
               />
             )}
           </div>
@@ -870,28 +864,7 @@ Experience Level: ${level}`;
           </CardHeader>
           <CardContent className="p-6">
             {/* Current Question Display */}
-            <div className="mb-4 p-4 bg-purple-50 border border-purple-200 rounded-lg">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-medium text-purple-900">
-                  Current Question:
-                </p>
-                <Button
-                  onClick={() => {
-                    if (aiInterviewerRef.current && interviewQuestions[currentQuestion]) {
-                      aiInterviewerRef.current.speakText(interviewQuestions[currentQuestion]);
-                    }
-                  }}
-                  variant="outline"
-                  size="sm"
-                  className="text-xs border-purple-300 text-purple-700 hover:bg-purple-50"
-                >
-                  🔊 Replay Question
-                </Button>
-              </div>
-              <p className="mt-2 text-slate-700">
-                {interviewQuestions[currentQuestion] || "Loading..."}
-              </p>
-            </div>
+           
 
             {/* Messages Display */}
             <div className="mb-4 max-h-[200px] overflow-y-auto space-y-3 p-4 bg-slate-50 rounded-lg">
