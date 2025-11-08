@@ -3,7 +3,7 @@ import { Button } from "./button";
 import { Card, CardHeader, CardTitle, CardContent } from "./card";
 import { Brain, ArrowLeft, CheckCircle, Clock, Users, RotateCcw, Trophy, Star, FileText, Download } from "lucide-react";
 import { Link } from "react-router-dom";
-import { askAzureText } from "../Utils/azureOpenAi";
+import { askAzureText } from "../Utils/Feedback";
 import jsPDF from 'jspdf';
 
 export default function InterviewResults({ 

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Brain, ArrowLeft, Camera, Video, VideoOff, Send, Mic, MicOff, CheckCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
-import { askAzureText, askAzureWithImage } from "../Utils/azureOpenAi";
+import { askAzureText, askAzureWithImage } from "../Utils/Feedback";
 import InterviewResults from "./InterviewResults";
 import InterviewSetupStep1 from "./InterviewSetupStep1";
 import InterviewSetupStep2 from "./InterviewSetupStep2";
