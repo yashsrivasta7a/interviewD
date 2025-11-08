@@ -139,6 +139,13 @@ The JSON must have these exact fields:
       "duration": "time period"
     }
   ],
+   "projects": [
+    {
+      "name": "Project Name",
+      "description": "Brief description of the project",
+      "technologies": ["Tech1", "Tech2"],
+    }
+  ],
   "certifications": ["cert1", "cert2"],
   "strengths": ["strength1", "strength2", "strength3"],
   "improvements": ["improvement1", "improvement2"],
@@ -274,7 +281,7 @@ Analyze the resume thoroughly and provide detailed insights. If information is m
           )}
 
           {/* Parsed Text Preview */}
-          {parsedText && !analysis && (
+          {/* {parsedText && !analysis && (
             <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 mb-6">
               <h3 className="text-lg font-semibold text-gray-800 mb-3">Extracted Text Preview</h3>
               <div className="text-gray-700 text-sm max-h-60 overflow-y-auto whitespace-pre-wrap font-mono bg-white p-4 rounded border">
@@ -282,7 +289,7 @@ Analyze the resume thoroughly and provide detailed insights. If information is m
               </div>
               <p className="text-xs text-gray-500 mt-2">Total characters: {parsedText.length}</p>
             </div>
-          )}
+          )} */}
 
           {/* Analysis Results */}
           {analysis && (
@@ -367,6 +374,35 @@ Analyze the resume thoroughly and provide detailed insights. If information is m
                   </div>
                 </div>
               )}
+
+              {/* Projects */}
+{analysis.projects && analysis.projects.length > 0 && (
+  <div className="bg-white border border-gray-200 rounded-xl p-6">
+    <div className="flex items-center gap-2 mb-4">
+      <FileText className="w-5 h-5 text-indigo-600" />
+      <h3 className="text-lg font-semibold text-gray-800">Projects</h3>
+    </div>
+    <div className="space-y-4">
+      {analysis.projects.map((project, idx) => (
+        <div key={idx} className="border-l-4 border-purple-600 pl-4 py-2">
+          <h4 className="font-semibold text-gray-800">{project.name}</h4>
+          {project.description && (
+            <p className="text-gray-700 text-sm mt-2">{project.description}</p>
+          )}
+          {project.technologies && project.technologies.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-2">
+              {project.technologies.map((tech, techIdx) => (
+                <span key={techIdx} className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded text-xs font-medium">
+                  {tech}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  </div>
+)}
 
               {/* Experience */}
               {analysis.experience && analysis.experience.length > 0 && (
