@@ -80,6 +80,8 @@ export default function Mentor() {
   const [messages, setMessages] = useState([]);
   const [warningCount, setWarningCount] = useState(0);
   const [lastWarningTime, setLastWarningTime] = useState(null);
+  const [includeCoding, setIncludeCoding] = useState(false);
+  const [currentCodingQuestion, setCurrentCodingQuestion] = useState(null);
   const [currentInput, setCurrentInput] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
   const [selectedLevel, setSelectedLevel] = useState("");
@@ -340,6 +342,31 @@ Be constructive and professional. Keep it concise (2-3 sentences). Please provid
     }
   };
 
+  const generateCodingQuestion = async () => {
+    const prompt = `Generate a coding problem suitable for a ${selectedLevel} ${selectedRole} position. 
+    Format the response as a JSON object with these fields:
+    {
+      "title": "Problem title",
+      "description": "Detailed problem description",
+      "examples": "Input/output examples",
+      "testCases": [
+        {"input": "test input", "expected": "expected output"}
+      ],
+      "template": "Starting code template",
+      "difficulty": "easy/medium/hard"
+    }`;
+
+    try {
+      const response = await askAzureText(prompt);
+      const codingQuestion = JSON.parse(response);
+      localStorage.setItem('currentQuestion', JSON.stringify(codingQuestion));
+      return codingQuestion;
+    } catch (error) {
+      console.error('Error generating coding question:', error);
+      return null;
+    }
+  };
+
   const generateInterviewQuestions = async (
     role,
     level,
@@ -448,6 +475,17 @@ Experience Level: ${level}`;
       resumeData
     );
 
+    // If coding questions are included, generate one and insert it in the middle of the interview
+    if (includeCoding) {
+      const codingQuestion = await generateCodingQuestion();
+      if (codingQuestion) {
+        // Insert coding question in the middle of regular questions
+        const midPoint = Math.floor(questions.length / 2);
+        questions.splice(midPoint, 0, "Now, I'd like you to solve a coding problem. Please switch to the code editor tab. After you submit your solution, we'll discuss your approach and thought process.");
+        setCurrentCodingQuestion(codingQuestion);
+      }
+    }
+    
     setInterviewQuestions(questions);
     setIsStarted(true);
     
@@ -459,7 +497,8 @@ Experience Level: ${level}`;
 - Encourage elaboration and specific examples
 - Maintain a professional but conversational tone
 - Guide the interview naturally, deciding when to move to the next question
-- React authentically to responses - if something is vague, call it out; if it's impressive, acknowledge it
+- React authentically to responses - if something is vague, call it out; if it's impressive, acknowledge it.
+- Dont go too deep into a single question/topic. Once its answered sufficiently, move on to the next question.
 
 Interview has ${questions.length} questions total.${resumeData ? `\n\nCandidate Background:\n- Skills: ${resumeData.skills?.join(", ")}\n- Experience: ${resumeData.experience?.map(e => e.title).join(", ")}` : ""}`;
 

@@ -16,7 +16,9 @@ export default function InterviewSetupStep1({
   allRoles,
   onNext,
   onAnalysisComplete,
-  resumeUploaded
+  resumeUploaded,
+  includeCoding,
+  setIncludeCoding
 }) {
   const roleDropdownRef = useRef(null);
 
@@ -138,8 +140,23 @@ export default function InterviewSetupStep1({
         </div>
 
         <div className="mt-8 space-y-4">
-          
           <ResumeParser onAnalysisComplete={onAnalysisComplete} />
+        </div>
+
+        <div className="mt-6 flex items-center space-x-2 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
+          <input
+            type="checkbox"
+            id="includeCoding"
+            checked={includeCoding}
+            onChange={(e) => setIncludeCoding(e.target.checked)}
+            className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
+          />
+          <label htmlFor="includeCoding" className="text-sm font-medium text-slate-900">
+            Include coding questions in the interview
+          </label>
+          <div className="ml-2 text-xs text-slate-500">
+            (Will test practical coding skills during the interview)
+          </div>
         </div>
 
         <div className="flex justify-end mt-8">
