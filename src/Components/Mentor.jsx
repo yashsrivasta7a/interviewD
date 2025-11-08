@@ -21,8 +21,7 @@ import {
   Shield,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { auth } from "../Utils/Firebase";
-import { onAuthStateChanged } from "firebase/auth";
+import { useAuth0 } from "@auth0/auth0-react";
 import { askAzureText, askAzureWithImage } from "../Utils/azureOpenAi";
 import InterviewResults from "./InterviewResults";
 
@@ -131,7 +130,7 @@ export default function Mentor() {
   const [isComplete, setIsComplete] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [interviewQuestions, setInterviewQuestions] = useState([]);
-  const [user, setUser] = useState(null);
+  const { user, isAuthenticated } = useAuth0();
   const [timer, setTimer] = useState(null); // total seconds
   const [timeLeft, setTimeLeft] = useState(null);
   const [userResponses, setUserResponses] = useState([]); // Store user responses
@@ -518,10 +517,7 @@ Experience Level: ${level}`;
     setShowResults(false);
   };
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, setUser);
-    return () => unsubscribe();
-  }, []);
+  // Auth0 handles authentication state automatically
   useEffect(() => {
     if (isStarted && interviewQuestions.length > 0) {
       const minutes = 15;
