@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Brain, ArrowLeft } from "lucide-react";
+import { Brain, ArrowLeft, Camera, Video, VideoOff, Send, Mic, MicOff, CheckCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import { askAzureText, askAzureWithImage } from "../Utils/azureOpenAi";
@@ -8,10 +8,10 @@ import InterviewSetupStep1 from "./InterviewSetupStep1";
 import InterviewSetupStep2 from "./InterviewSetupStep2";
 import InterviewSetupStep3 from "./InterviewSetupStep3";
 import InterviewHeader from "./InterviewHeader";
-import VideoFeedPanel from "./VideoFeedPanel";
-import ChatPanel from "./ChatPanel";
 import ProgressPanel from "./ProgressPanel";
-import InterviewTipsPanel from "./InterviewTipsPanel";
+import { Button } from "./button";
+import { Card, CardHeader, CardTitle, CardContent } from "./card";
+import { Textarea } from "./textarea";
 
 const nextQuestionStarters = [
   "Alright, here's the next one:",
@@ -612,44 +612,202 @@ Experience Level: ${level}`;
       />
 
       <div className="container mx-auto px-4 py-6 max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <div className="lg:col-span-1">
-            <VideoFeedPanel
-              videoRef={videoRef}
-              isCameraOn={isCameraOn}
-              onStartCamera={startCamera}
-              onStopCamera={stopCamera}
-            />
-          </div>
+        {/* Top Section - Two Windows Side by Side */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          {/* Left Window - AI Interviewer (Empty for now) */}
+          <Card className="border-slate-200 shadow-lg bg-white/80 backdrop-blur-sm">
+            <CardHeader className="bg-gradient-to-r from-purple-50 to-teal-50 border-b border-slate-100">
+              <CardTitle className="text-lg text-slate-900 flex items-center space-x-2">
+                <Brain className="w-5 h-5 text-purple-600" />
+                <span>AI Interviewer</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4">
+              <div className="w-full h-[400px] rounded-lg border border-slate-200 bg-slate-100 flex items-center justify-center">
+                <p className="text-slate-400">AI Interviewer Window</p>
+              </div>
+            </CardContent>
+          </Card>
 
-          <div className="lg:col-span-2">
-            <ChatPanel
-              messages={messages}
-              currentInput={currentInput}
-              setCurrentInput={setCurrentInput}
-              isLoading={isLoading}
-              isListening={isListening}
-              currentQuestion={currentQuestion}
-              totalQuestions={interviewQuestions.length}
-              isComplete={isComplete}
-              onSendMessage={sendMessage}
-              onVoiceInput={handleVoiceInput}
-              onStopListening={stopListening}
-              onFinishInterview={() => {
-                setIsComplete(true);
-                setShowResults(true);
-              }}
-            />
-          </div>
-
-          <div className="space-y-6">
-            <ProgressPanel
-              completedQuestions={userResponses.length}
-              totalQuestions={interviewQuestions.length}
-            />
-            <InterviewTipsPanel />
-          </div>
+          {/* Right Window - User's Camera */}
+          <Card className="border-slate-200 shadow-lg bg-white/80 backdrop-blur-sm">
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-slate-100">
+              <CardTitle className="text-lg text-slate-900 flex items-center space-x-2">
+                <Camera className="w-5 h-5 text-blue-600" />
+                <span>Your Video</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4">
+              <video
+                ref={videoRef}
+                autoPlay
+                muted
+                playsInline
+                className="w-full h-[400px] rounded-lg border border-slate-200 bg-slate-100 object-cover"
+              />
+              <div className="flex items-center justify-between mt-4">
+                <p className="text-xs text-slate-500">
+                  Used for posture analysis feedback
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={isCameraOn ? stopCamera : startCamera}
+                  className={`transition-all duration-300 ${
+                    isCameraOn
+                      ? "border-green-300 text-green-700 bg-green-50 hover:bg-green-100"
+                      : "border-slate-300 text-slate-600 hover:bg-slate-50"
+                  }`}
+                >
+                  {isCameraOn ? (
+                    <>
+                      <VideoOff className="w-4 h-4 mr-1" />
+                      Stop
+                    </>
+                  ) : (
+                    <>
+                      <Video className="w-4 h-4 mr-1" />
+                      Start
+                    </>
+                  )}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
+
+        {/* Bottom Section - Answer Input Area */}
+        <Card className="border-slate-200 shadow-lg bg-white/80 backdrop-blur-sm">
+          <CardHeader className="bg-gradient-to-r from-purple-50 to-teal-50 border-b border-slate-200">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-teal-600 rounded-lg flex items-center justify-center">
+                  <Brain className="w-5 h-5 text-white" />
+                </div>
+                <CardTitle className="text-lg text-slate-900">
+                  Your Answer
+                </CardTitle>
+              </div>
+              <div className="flex items-center space-x-4">
+                <div className="text-sm text-slate-600">
+                  Question {currentQuestion + 1} of {interviewQuestions.length}
+                </div>
+                <ProgressPanel
+                  completedQuestions={userResponses.length}
+                  totalQuestions={interviewQuestions.length}
+                  compact={true}
+                />
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="p-6">
+            {/* Current Question Display */}
+            <div className="mb-4 p-4 bg-purple-50 border border-purple-200 rounded-lg">
+              <p className="text-sm font-medium text-purple-900">
+                Current Question:
+              </p>
+              <p className="mt-2 text-slate-700">
+                {interviewQuestions[currentQuestion] || "Loading..."}
+              </p>
+            </div>
+
+            {/* Messages Display */}
+            <div className="mb-4 max-h-[200px] overflow-y-auto space-y-3 p-4 bg-slate-50 rounded-lg">
+              {messages.slice(-3).map((message) => (
+                <div
+                  key={message.id}
+                  className={`flex ${
+                    message.type === "user" ? "justify-end" : "justify-start"
+                  }`}
+                >
+                  <div
+                    className={`max-w-[80%] p-3 rounded-lg shadow-sm text-sm ${
+                      message.type === "user"
+                        ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white"
+                        : "bg-white border border-slate-200 text-slate-900"
+                    }`}
+                  >
+                    <p className="leading-relaxed whitespace-pre-wrap">
+                      {message.content}
+                    </p>
+                  </div>
+                </div>
+              ))}
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="bg-white border border-slate-200 rounded-lg p-3 shadow-sm">
+                    <div className="flex items-center space-x-2">
+                      <Brain className="w-4 h-4 text-purple-600 animate-pulse" />
+                      <span className="text-sm text-slate-600">
+                        AI is thinking...
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Input Area */}
+            {!isComplete && (
+              <div className="space-y-3">
+                <div className="flex space-x-3">
+                  <Textarea
+                    value={currentInput}
+                    onChange={(e) => setCurrentInput(e.target.value)}
+                    placeholder="Type your response here or use voice input..."
+                    className="flex-1 min-h-[100px] border-slate-300 focus:border-purple-500 focus:ring-purple-500/20 bg-white"
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        sendMessage();
+                      }
+                    }}
+                  />
+                  <div className="flex flex-col space-y-2">
+                    <Button
+                      onClick={sendMessage}
+                      disabled={!currentInput.trim() || isLoading}
+                      className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 h-12 w-12"
+                    >
+                      <Send className="w-5 h-5" />
+                    </Button>
+                    {!isListening ? (
+                      <Button
+                        onClick={handleVoiceInput}
+                        className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 h-12 w-12"
+                      >
+                        <Mic className="w-5 h-5" />
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={stopListening}
+                        className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 h-12 w-12 animate-pulse"
+                      >
+                        <MicOff className="w-5 h-5" />
+                      </Button>
+                    )}
+                    <Button
+                      onClick={() => {
+                        setIsComplete(true);
+                        setShowResults(true);
+                      }}
+                      variant="outline"
+                      className="text-slate-600 hover:text-red-600 hover:border-red-300 hover:bg-red-50 transition-all duration-300 h-12 w-12"
+                      title="Finish Interview"
+                    >
+                      <CheckCircle className="w-5 h-5" />
+                    </Button>
+                  </div>
+                </div>
+                {isListening && (
+                  <div className="text-sm text-red-600 animate-pulse text-center font-medium">
+                    🎤 Listening... Speak your answer now
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
