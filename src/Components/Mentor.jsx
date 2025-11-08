@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Brain, ArrowLeft, Camera, Video, VideoOff, Send, Mic, MicOff, CheckCircle } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useAuth0 } from "@auth0/auth0-react";
+
 import { askAzureText, askAzureWithImage } from "../Utils/Feedback";
 import InterviewResults from "./InterviewResults";
 import InterviewSetupStep1 from "./InterviewSetupStep1";
@@ -13,6 +13,7 @@ import { Button } from "./button";
 import { Card, CardHeader, CardTitle, CardContent } from "./card";
 import { Textarea } from "./textarea";
 import AiInterviewer from "./talkingHead/AiInterviewer";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const nextQuestionStarters = [
   "Alright, here's the next one:",
@@ -108,16 +109,27 @@ export default function Mentor() {
   const [showResults, setShowResults] = useState(false);
   const [setupStep, setSetupStep] = useState(1);
   const [resumeUploaded, setResumeUploaded] = useState(false);
+  
+  // NEW: State for background photo analysis
+  const [backgroundAnalyses, setBackgroundAnalyses] = useState([]);
+  const [captureCount, setCaptureCount] = useState(0);
 
   const recognitionRef = useRef(null);
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const aiInterviewerRef = useRef(null);
+  
+  // NEW: Ref for background capture interval
+  const captureIntervalRef = useRef(null);
 
   useEffect(() => {
     startCamera();
     return () => {
       stopCamera();
+      // Clean up interval on unmount
+      if (captureIntervalRef.current) {
+        clearInterval(captureIntervalRef.current);
+      }
     };
   }, []);
 
@@ -140,6 +152,19 @@ export default function Mentor() {
     }, 1000);
     return () => clearInterval(interval);
   }, [isStarted, isComplete, timeLeft]);
+
+  // NEW: Start background photo capture when interview starts
+  useEffect(() => {
+    if (isStarted && !isComplete && isCameraOn) {
+      startBackgroundCapture();
+    } else {
+      stopBackgroundCapture();
+    }
+    
+    return () => {
+      stopBackgroundCapture();
+    };
+  }, [isStarted, isComplete, isCameraOn]);
 
   const startCamera = async () => {
     try {
@@ -180,20 +205,161 @@ export default function Mentor() {
   };
 
   const captureImage = () => {
-    if (!videoRef.current || !isCameraOn) return null;
-
-    const canvas = document.createElement("canvas");
-    const video = videoRef.current;
-
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-
-    const ctx = canvas.getContext("2d");
-    if (ctx) {
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      return canvas.toDataURL("image/jpeg");
+    if (!videoRef.current || !isCameraOn) {
+      console.log("❌ captureImage: No video or camera off");
+      return null;
     }
-    return null;
+
+    const video = videoRef.current;
+    
+    // Validate video dimensions
+    if (video.videoWidth === 0 || video.videoHeight === 0) {
+      console.log("❌ captureImage: Video has no dimensions");
+      return null;
+    }
+
+    try {
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        console.log("❌ captureImage: Could not get canvas context");
+        return null;
+      }
+
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.8);
+      
+      console.log(`✅ captureImage: Captured ${canvas.width}x${canvas.height}, data length: ${dataUrl.length}`);
+      return dataUrl;
+    } catch (error) {
+      console.error("❌ captureImage error:", error);
+      return null;
+    }
+  };
+
+  // NEW: Background photo capture and analysis
+  const startBackgroundCapture = () => {
+    // Clear any existing interval
+    if (captureIntervalRef.current) {
+      clearInterval(captureIntervalRef.current);
+    }
+
+    console.log("🎬 Starting background photo capture every 15 seconds");
+
+    // Capture immediately when starting
+    captureAndAnalyzeBackground();
+
+    // Then capture every 15 seconds
+    captureIntervalRef.current = setInterval(() => {
+      captureAndAnalyzeBackground();
+    }, 15000); // 15 seconds
+  };
+
+  const stopBackgroundCapture = () => {
+    if (captureIntervalRef.current) {
+      clearInterval(captureIntervalRef.current);
+      captureIntervalRef.current = null;
+      console.log("🛑 Stopped background photo capture");
+    }
+  };
+
+  const captureAndAnalyzeBackground = async () => {
+    try {
+      if (!videoRef.current || !isCameraOn) {
+        console.log("⚠️ Camera not available");
+        return;
+      }
+
+      // Check if video is actually playing and has dimensions
+      if (videoRef.current.readyState < 2) {
+        console.log("⚠️ Video not ready yet (readyState:", videoRef.current.readyState + ")");
+        return;
+      }
+
+      if (videoRef.current.videoWidth === 0 || videoRef.current.videoHeight === 0) {
+        console.log("⚠️ Video has no dimensions");
+        return;
+      }
+
+      const timestamp = new Date();
+      const newCaptureCount = captureCount + 1;
+      setCaptureCount(newCaptureCount);
+
+      console.log(`📸 Background Capture #${newCaptureCount} at ${timestamp.toLocaleTimeString()}`);
+
+      // Capture image
+      const imageData = captureImage();
+      if (!imageData || imageData.length < 1000) {
+        console.log("⚠️ Failed to capture valid image data");
+        return;
+      }
+
+      console.log(`✅ Image captured successfully (${imageData.length} bytes)`);
+
+      // Analyze in background (don't await to avoid blocking)
+      analyzeImageInBackground(imageData, newCaptureCount, timestamp);
+
+    } catch (error) {
+      console.error("❌ Error during background capture:", error);
+    }
+  };
+
+  const analyzeImageInBackground = async (imageData, captureNum, timestamp) => {
+    try {
+      console.log(`🔍 Starting analysis for capture #${captureNum}...`);
+
+      const analysis = await askAzureWithImage(
+        `Analyze this candidate's appearance and demeanor during the interview. Provide brief feedback on:
+1. Professional appearance and body language
+2. Posture and positioning
+3. Eye contact and engagement level
+4. Overall confidence and professionalism
+
+Be constructive and professional. Keep it concise (2-3 sentences). Please provide a clean response without any markdown formatting like ** or *.`,
+        imageData
+      );
+
+      const cleanAnalysis = analysis
+        .replace(/\*\*(.*?)\*\*/g, "$1")
+        .replace(/\*(.*?)\*/g, "$1");
+
+      const analysisRecord = {
+        id: `capture_${captureNum}_${Date.now()}`,
+        captureNumber: captureNum,
+        timestamp: timestamp,
+        analysis: cleanAnalysis,
+        questionNumber: currentQuestion + 1,
+        currentQuestion: interviewQuestions[currentQuestion] || "N/A",
+      };
+
+      setBackgroundAnalyses((prev) => {
+        const updated = [...prev, analysisRecord];
+        console.log(`✅ Analysis #${captureNum} complete. Total analyses: ${updated.length}`);
+        console.log(`📊 Analysis result:`, cleanAnalysis);
+        return updated;
+      });
+
+    } catch (error) {
+      console.error(`❌ Error analyzing capture #${captureNum}:`, error);
+      console.error("Full error:", error.message, error.stack);
+      
+      // Store error record with more details
+      setBackgroundAnalyses((prev) => [
+        ...prev,
+        {
+          id: `capture_${captureNum}_${Date.now()}`,
+          captureNumber: captureNum,
+          timestamp: timestamp,
+          analysis: `Analysis failed: ${error.message}`,
+          error: true,
+          errorMessage: error.message,
+          questionNumber: currentQuestion + 1,
+        },
+      ]);
+    }
   };
 
   const generateInterviewQuestions = async (
@@ -465,35 +631,7 @@ Experience Level: ${level}`;
         }, 500);
       }
 
-      if (videoRef.current && videoRef.current.videoWidth > 0) {
-        const img = captureImage();
-        if (img) {
-          try {
-            const imageFeedback = await askAzureWithImage(
-              "Analyze this candidate's posture and body language in a mock interview setting. Provide 2-3 brief, constructive tips for improvement. Focus on professional presentation. Please provide a clean response without any markdown formatting like ** or *.",
-              img
-            );
-
-            const cleanImageFeedback = imageFeedback
-              .replace(/\*\*(.*?)\*\*/g, "$1")
-              .replace(/\*(.*?)\*/g, "$1");
-
-            setAiFeedback((prev) => {
-              const updatedFeedback = [...prev];
-              const lastIndex = updatedFeedback.length - 1;
-              if (lastIndex >= 0) {
-                updatedFeedback[lastIndex] = {
-                  ...updatedFeedback[lastIndex],
-                  cameraFeedback: cleanImageFeedback,
-                };
-              }
-              return updatedFeedback;
-            });
-          } catch (imageError) {
-            console.error("Image analysis error:", imageError);
-          }
-        }
-      }
+      // NOTE: Removed immediate photo capture here since it's now handled by background interval
     } catch (error) {
       console.error("Error generating response:", error);
       let fallbackResponse = "";
@@ -523,6 +661,7 @@ Experience Level: ${level}`;
   };
 
   const resetInterview = () => {
+    stopBackgroundCapture();
     setIsStarted(false);
     setMessages([]);
     setCurrentQuestion(0);
@@ -532,6 +671,8 @@ Experience Level: ${level}`;
     setUserResponses([]);
     setAiFeedback([]);
     setShowResults(false);
+    setBackgroundAnalyses([]);
+    setCaptureCount(0);
   };
 
   const handleResumeAnalysis = (analysisData) => {
@@ -550,6 +691,7 @@ Experience Level: ${level}`;
         timer={timer}
         timeLeft={timeLeft}
         onStartNewInterview={resetInterview}
+        backgroundAnalyses={backgroundAnalyses} // NEW: Pass background analyses to results
       />
     );
   }
@@ -592,21 +734,15 @@ Experience Level: ${level}`;
                 setShowRoleDropdown={setShowRoleDropdown}
                 allRoles={allRoles}
                 onNext={() => setSetupStep(2)}
+                onAnalysisComplete={handleResumeAnalysis}
+                resumeUploaded={resumeUploaded}
               />
             )}
 
             {setupStep === 2 && (
               <InterviewSetupStep2
                 onBack={() => setSetupStep(1)}
-                onNext={() => setSetupStep(3)}
-              />
-            )}
-
-            {setupStep === 3 && (
-              <InterviewSetupStep3
-                onBack={() => setSetupStep(2)}
-                onAnalysisComplete={handleResumeAnalysis}
-                resumeUploaded={resumeUploaded}
+                onNext={startInterview}
               />
             )}
           </div>
@@ -654,6 +790,13 @@ Experience Level: ${level}`;
               <CardTitle className="text-lg text-slate-900 flex items-center space-x-2">
                 <Camera className="w-5 h-5 text-blue-600" />
                 <span>Your Video</span>
+                {/* NEW: Background capture indicator */}
+                {isStarted && !isComplete && isCameraOn && (
+                  <span className="ml-auto text-xs text-green-600 flex items-center gap-1">
+                    <span className="w-2 h-2 bg-green-600 rounded-full animate-pulse"></span>
+                    Captures: {captureCount} | Analyses: {backgroundAnalyses.length}
+                  </span>
+                )}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4">
@@ -666,7 +809,7 @@ Experience Level: ${level}`;
               />
               <div className="flex items-center justify-between mt-4">
                 <p className="text-xs text-slate-500">
-                  Used for posture analysis feedback
+                  Auto-captured every 15s for analysis
                 </p>
                 <Button
                   variant="outline"
@@ -721,28 +864,7 @@ Experience Level: ${level}`;
           </CardHeader>
           <CardContent className="p-6">
             {/* Current Question Display */}
-            <div className="mb-4 p-4 bg-purple-50 border border-purple-200 rounded-lg">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-medium text-purple-900">
-                  Current Question:
-                </p>
-                <Button
-                  onClick={() => {
-                    if (aiInterviewerRef.current && interviewQuestions[currentQuestion]) {
-                      aiInterviewerRef.current.speakText(interviewQuestions[currentQuestion]);
-                    }
-                  }}
-                  variant="outline"
-                  size="sm"
-                  className="text-xs border-purple-300 text-purple-700 hover:bg-purple-50"
-                >
-                  🔊 Replay Question
-                </Button>
-              </div>
-              <p className="mt-2 text-slate-700">
-                {interviewQuestions[currentQuestion] || "Loading..."}
-              </p>
-            </div>
+           
 
             {/* Messages Display */}
             <div className="mb-4 max-h-[200px] overflow-y-auto space-y-3 p-4 bg-slate-50 rounded-lg">

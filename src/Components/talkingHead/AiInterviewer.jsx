@@ -75,7 +75,7 @@ const AiInterviewer = forwardRef(({ currentQuestion }, ref) => {
   const speakText = async (text) => {
     try {
       console.log('Generating speech for:', text);
-      const audioUrl = await generateSpeech(text, 'alloy');
+      const audioUrl = await generateSpeech(text, 'echo');
       await playAudioWithLipSync(audioUrl);
     } catch (error) {
       console.error('Error in speakText:', error);

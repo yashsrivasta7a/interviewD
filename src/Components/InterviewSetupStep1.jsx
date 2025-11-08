@@ -2,6 +2,7 @@ import React, { useRef, useEffect } from "react";
 import { Button } from "./button";
 import { Card, CardHeader, CardTitle, CardContent } from "./card";
 import { Target } from "lucide-react";
+import ResumeParser from "../Utils/ResumeParser";
 
 export default function InterviewSetupStep1({
   selectedRole,
@@ -14,6 +15,8 @@ export default function InterviewSetupStep1({
   setShowRoleDropdown,
   allRoles,
   onNext,
+  onAnalysisComplete,
+  resumeUploaded
 }) {
   const roleDropdownRef = useRef(null);
 
@@ -132,6 +135,11 @@ export default function InterviewSetupStep1({
               )
             )}
           </div>
+        </div>
+
+        <div className="mt-8 space-y-4">
+          
+          <ResumeParser onAnalysisComplete={onAnalysisComplete} />
         </div>
 
         <div className="flex justify-end mt-8">

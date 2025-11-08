@@ -11,7 +11,7 @@ const client = new AzureOpenAI({
 });
 
 //  Text-to-Speech
-export async function generateSpeech(text, voice = "alloy") {
+export async function generateSpeech(text, voice = "echo") {
   try {
     const response = await client.audio.speech.create({
       model: ttsDeploymentName,
