@@ -12,6 +12,7 @@ import ProgressPanel from "./ProgressPanel";
 import { Button } from "./button";
 import { Card, CardHeader, CardTitle, CardContent } from "./card";
 import { Textarea } from "./textarea";
+import AiInterviewer from "./talkingHead/AiInterviewer";
 
 const nextQuestionStarters = [
   "Alright, here's the next one:",
@@ -111,6 +112,7 @@ export default function Mentor() {
   const recognitionRef = useRef(null);
   const videoRef = useRef(null);
   const streamRef = useRef(null);
+  const aiInterviewerRef = useRef(null);
 
   useEffect(() => {
     startCamera();
@@ -312,6 +314,13 @@ Experience Level: ${level}`;
     };
     setMessages([welcomeMessage]);
     setIsLoading(false);
+
+    // Speak the first question with AI interviewer
+    setTimeout(() => {
+      if (aiInterviewerRef.current && questions[0]) {
+        aiInterviewerRef.current.speakText(questions[0]);
+      }
+    }, 1000);
   };
 
   const handleVoiceInput = () => {
@@ -448,6 +457,13 @@ Experience Level: ${level}`;
       };
 
       setMessages((prev) => [...prev, botMessage]);
+
+      // Trigger AI to speak the next question
+      if (currentQuestion < interviewQuestions.length - 1 && aiInterviewerRef.current) {
+        setTimeout(() => {
+          aiInterviewerRef.current.speakText(interviewQuestions[currentQuestion + 1]);
+        }, 500);
+      }
 
       if (videoRef.current && videoRef.current.videoWidth > 0) {
         const img = captureImage();
@@ -614,7 +630,7 @@ Experience Level: ${level}`;
       <div className="container mx-auto px-4 py-6 max-w-7xl">
         {/* Top Section - Two Windows Side by Side */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          {/* Left Window - AI Interviewer (Empty for now) */}
+          {/* Left Window - AI Interviewer */}
           <Card className="border-slate-200 shadow-lg bg-white/80 backdrop-blur-sm">
             <CardHeader className="bg-gradient-to-r from-purple-50 to-teal-50 border-b border-slate-100">
               <CardTitle className="text-lg text-slate-900 flex items-center space-x-2">
@@ -622,9 +638,12 @@ Experience Level: ${level}`;
                 <span>AI Interviewer</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-4">
-              <div className="w-full h-[400px] rounded-lg border border-slate-200 bg-slate-100 flex items-center justify-center">
-                <p className="text-slate-400">AI Interviewer Window</p>
+            <CardContent className="p-0">
+              <div style={{ width: '100%', height: '450px', position: 'relative' }}>
+                <AiInterviewer 
+                  ref={aiInterviewerRef}
+                  currentQuestion={interviewQuestions[currentQuestion]}
+                />
               </div>
             </CardContent>
           </Card>
@@ -703,9 +722,23 @@ Experience Level: ${level}`;
           <CardContent className="p-6">
             {/* Current Question Display */}
             <div className="mb-4 p-4 bg-purple-50 border border-purple-200 rounded-lg">
-              <p className="text-sm font-medium text-purple-900">
-                Current Question:
-              </p>
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium text-purple-900">
+                  Current Question:
+                </p>
+                <Button
+                  onClick={() => {
+                    if (aiInterviewerRef.current && interviewQuestions[currentQuestion]) {
+                      aiInterviewerRef.current.speakText(interviewQuestions[currentQuestion]);
+                    }
+                  }}
+                  variant="outline"
+                  size="sm"
+                  className="text-xs border-purple-300 text-purple-700 hover:bg-purple-50"
+                >
+                  🔊 Replay Question
+                </Button>
+              </div>
               <p className="mt-2 text-slate-700">
                 {interviewQuestions[currentQuestion] || "Loading..."}
               </p>
