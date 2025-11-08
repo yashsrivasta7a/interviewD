@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "./button";
 import { Card, CardHeader, CardTitle, CardContent } from "./card";
-import { Brain, ArrowLeft, CheckCircle, Clock, Users, RotateCcw, Trophy, Star, FileText, Download } from "lucide-react";
+import { Brain, ArrowLeft, CheckCircle, Clock, Users, RotateCcw, Trophy, Star, FileText, Download, Camera } from "lucide-react";
 import { Link } from "react-router-dom";
 import { askAzureText } from "../Utils/Feedback";
 import jsPDF from 'jspdf';
@@ -14,10 +14,13 @@ export default function InterviewResults({
   aiFeedback, 
   timer, 
   timeLeft, 
-  onStartNewInterview 
+  onStartNewInterview,
+  backgroundAnalyses = [] // NEW: Receive background analyses
 }) {
   const [interviewSummary, setInterviewSummary] = useState("");
   const [isLoadingSummary, setIsLoadingSummary] = useState(true);
+  const [photoAnalysisSummary, setPhotoAnalysisSummary] = useState(""); // NEW
+  const [isLoadingPhotoSummary, setIsLoadingPhotoSummary] = useState(true); // NEW
 
   useEffect(() => {
     const generateInterviewSummary = async () => {
@@ -82,6 +85,70 @@ export default function InterviewResults({
     generateInterviewSummary();
   }, [selectedRole, selectedLevel, interviewQuestions.length, userResponses.length, timer, timeLeft, aiFeedback]);
 
+  // NEW: Generate photo analysis summary
+  useEffect(() => {
+    const generatePhotoAnalysisSummary = async () => {
+      if (!backgroundAnalyses || backgroundAnalyses.length === 0) {
+        setIsLoadingPhotoSummary(false);
+        setPhotoAnalysisSummary("No photo analyses were captured during this interview.");
+        return;
+      }
+
+      try {
+        setIsLoadingPhotoSummary(true);
+        console.log(`📊 Generating summary from ${backgroundAnalyses.length} photo analyses...`);
+
+        const successfulAnalyses = backgroundAnalyses.filter(a => !a.error);
+        
+        if (successfulAnalyses.length === 0) {
+          setPhotoAnalysisSummary("Photo analysis was attempted but encountered technical issues. Please ensure camera permissions are enabled for future interviews.");
+          setIsLoadingPhotoSummary(false);
+          return;
+        }
+
+        const photoSummaryPrompt = `
+You are an expert body language and presentation coach analyzing a candidate's visual performance throughout an interview.
+
+Interview Context:
+- Position: ${selectedRole}
+- Experience Level: ${selectedLevel}
+- Total Photo Captures: ${backgroundAnalyses.length}
+- Successful Analyses: ${successfulAnalyses.length}
+- Interview Duration: ${Math.floor((timer - timeLeft) / 60)} minutes
+
+Individual Photo Analyses (captured every 15 seconds):
+${successfulAnalyses.map((analysis, index) => `
+Capture #${analysis.captureNumber} at ${new Date(analysis.timestamp).toLocaleTimeString()}:
+During Question ${analysis.questionNumber}: "${analysis.currentQuestion}"
+Analysis: ${analysis.analysis}
+`).join('\n')}
+
+Please provide a comprehensive visual presentation summary .
+Keep the summary professional, constructive, and short . Focus on patterns across all captures, not individual moments. Limit to 2-3 lines only . Please provide a clean response without any markdown formatting like ** or * or # signs.
+        `;
+
+        const photoSummary = await askAzureText(photoSummaryPrompt);
+        const cleanPhotoSummary = photoSummary
+          .replace(/\*\*(.*?)\*\*/g, '$1')
+          .replace(/\*(.*?)\*/g, '$1')
+          .replace(/#{1,6}\s*(.*?)(\n|$)/g, '$1$2')
+          .replace(/^\s*[-*+]\s+/gm, '• ')
+          .replace(/^\s*\d+\.\s+/gm, '• ')
+          .replace(/\b(Overall Body Language Assessment|Engagement & Confidence Patterns|Key Strengths|Areas for Improvement|Progression Analysis|Actionable Recommendations|OVERALL|ENGAGEMENT|KEY STRENGTHS|AREAS|PROGRESSION|ACTIONABLE)(\s*:)/gi, '<strong>$1$2</strong>');
+        
+        setPhotoAnalysisSummary(cleanPhotoSummary);
+        console.log("✅ Photo analysis summary generated successfully");
+      } catch (error) {
+        console.error("Error generating photo analysis summary:", error);
+        setPhotoAnalysisSummary("We encountered an issue generating your photo analysis summary. However, individual photo analyses are available below if captured.");
+      } finally {
+        setIsLoadingPhotoSummary(false);
+      }
+    };
+
+    generatePhotoAnalysisSummary();
+  }, [backgroundAnalyses, selectedRole, selectedLevel, timer, timeLeft]);
+
   const downloadSummary = () => {
     const doc = new jsPDF();
     
@@ -112,6 +179,8 @@ export default function InterviewResults({
     doc.text(`Interview Duration: ${formatTime(timer - timeLeft)}`, 20, yPosition);
     yPosition += 7;
     doc.text(`Completion Rate: ${Math.round((userResponses.length / interviewQuestions.length) * 100)}%`, 20, yPosition);
+    yPosition += 7;
+    doc.text(`Photo Captures: ${backgroundAnalyses.length}`, 20, yPosition);
     yPosition += 15;
     
     // Comprehensive Summary
@@ -133,6 +202,32 @@ export default function InterviewResults({
     });
     
     yPosition += 10;
+    
+    // NEW: Photo Analysis Summary
+    if (backgroundAnalyses.length > 0) {
+      doc.setFontSize(14);
+      if (yPosition > 260) {
+        doc.addPage();
+        yPosition = 20;
+      }
+      doc.text('Visual Presentation & Body Language Analysis:', 20, yPosition);
+      yPosition += 10;
+      
+      doc.setFontSize(10);
+      const cleanPhotoSummaryText = photoAnalysisSummary.replace(/<\/?strong>/g, '').replace(/&nbsp;/g, ' ');
+      const photoSummaryLines = doc.splitTextToSize(cleanPhotoSummaryText, 170);
+      
+      photoSummaryLines.forEach((line) => {
+        if (yPosition > 270) {
+          doc.addPage();
+          yPosition = 20;
+        }
+        doc.text(line, 20, yPosition);
+        yPosition += 5;
+      });
+      
+      yPosition += 10;
+    }
     
     // Detailed Feedback
     doc.setFontSize(14);
@@ -210,6 +305,46 @@ export default function InterviewResults({
       doc.line(20, yPosition, 190, yPosition);
       yPosition += 10;
     });
+
+    // NEW: Detailed Photo Analyses
+    if (backgroundAnalyses.length > 0) {
+      const successfulAnalyses = backgroundAnalyses.filter(a => !a.error);
+      
+      if (successfulAnalyses.length > 0) {
+        doc.addPage();
+        yPosition = 20;
+        
+        doc.setFontSize(14);
+        doc.text('Detailed Photo Analyses (Every 15 seconds):', 20, yPosition);
+        yPosition += 10;
+        
+        successfulAnalyses.forEach((analysis) => {
+          if (yPosition > 250) {
+            doc.addPage();
+            yPosition = 20;
+          }
+          
+          doc.setFontSize(11);
+          doc.text(`Capture #${analysis.captureNumber} - ${new Date(analysis.timestamp).toLocaleTimeString()}`, 20, yPosition);
+          yPosition += 7;
+          
+          doc.setFontSize(10);
+          doc.text(`During Question ${analysis.questionNumber}`, 20, yPosition);
+          yPosition += 6;
+          
+          const analysisLines = doc.splitTextToSize(analysis.analysis, 170);
+          analysisLines.forEach((line) => {
+            if (yPosition > 280) {
+              doc.addPage();
+              yPosition = 20;
+            }
+            doc.text(line, 25, yPosition);
+            yPosition += 4;
+          });
+          yPosition += 8;
+        });
+      }
+    }
     
     // Add footer with generation date
     const pageCount = doc.internal.getNumberOfPages();
@@ -252,7 +387,7 @@ export default function InterviewResults({
       <h1 className="text-xl font-bold text-slate-900">Interview Results</h1>
     </div>
 
-    <div className="w-[112px]"></div> {/* same width as back link for balance */}
+    <div className="w-[112px]"></div>
     
   </div>
 </header>
@@ -297,12 +432,13 @@ export default function InterviewResults({
           </Card>
           
           <Card className="border-orange-200 bg-gradient-to-r from-orange-50 to-red-50">
-            <CardContent className="pt-6 text-center">
-              <Star className="w-8 h-8 mx-auto mb-2 text-orange-600" />
-              <div className="text-2xl font-bold text-orange-800">{aiFeedback.filter(f => f.cameraFeedback).length}</div>
-              <div className="text-sm text-orange-600">Camera Analyses</div>
+            <CardContent className="p-5 mt-5 text-center">
+              <Camera className="w-8 h-8 mx-auto mb-2 text-orange-600" />
+              <div className="text-2xl font-bold text-orange-800">{backgroundAnalyses.length}</div>
+              <div className="text-sm text-orange-600">Photo Captures</div>
             </CardContent>
-          </Card>        </div>
+          </Card>
+        </div>
 
         <Card className="border-slate-200 shadow-xl bg-white/90 backdrop-blur-sm mb-8">
           <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-slate-200">
@@ -329,6 +465,38 @@ export default function InterviewResults({
             )}
           </CardContent>
         </Card>
+
+        {/* NEW: Photo Analysis Summary Section */}
+        {backgroundAnalyses.length > 0 && (
+          <Card className="border-slate-200 shadow-xl bg-white/90 backdrop-blur-sm mb-8">
+            <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 border-b border-slate-200">
+              <CardTitle className="text-2xl font-bold text-slate-900 flex items-center space-x-2">
+                <Camera className="w-6 h-6 text-orange-600" />
+                <span>Visual Presentation & Body Language Analysis</span>
+              </CardTitle>
+              <p className="text-sm text-slate-600 mt-2">
+                Based on {backgroundAnalyses.filter(a => !a.error).length} photo captures throughout your interview
+              </p>
+            </CardHeader>
+            <CardContent className="p-8 mt-5">
+              {isLoadingPhotoSummary ? (
+                <div className="flex items-center justify-center space-x-3 py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
+                  <p className="text-slate-600 text-lg">Analyzing your visual presentation patterns...</p>
+                </div>
+              ) : (
+                <div className="bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-lg p-6">
+                  <div className="prose prose-slate max-w-none">
+                    <div 
+                      className="text-slate-800 leading-relaxed text-lg whitespace-pre-line"
+                      dangerouslySetInnerHTML={{ __html: photoAnalysisSummary }}
+                    />
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         <Card className="border-slate-200 shadow-xl bg-white/80 backdrop-blur-sm">
           <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-slate-200">
@@ -429,4 +597,4 @@ export default function InterviewResults({
       </div>
     </div>
   );
-}
+};
