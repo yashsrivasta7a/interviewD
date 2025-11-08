@@ -19,11 +19,14 @@ import {
   Play,
   Camera,
   Shield,
+  Upload,
+  FileText,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import { askAzureText, askAzureWithImage } from "../Utils/azureOpenAi";
 import InterviewResults from "./InterviewResults";
+import ResumeParser from "../Utils/ResumeParser";
 
 import {
   Select,
@@ -136,7 +139,8 @@ export default function Mentor() {
   const [userResponses, setUserResponses] = useState([]); // Store user responses
   const [aiFeedback, setAiFeedback] = useState([]); // Store AI feedback for end display
   const [showResults, setShowResults] = useState(false); // Show results page
-  const [setupStep, setSetupStep] = useState(1); // 1 = form, 2 = terms
+  const [setupStep, setSetupStep] = useState(1); // 1 = form, 2 = terms, 3 = resume
+  const [resumeUploaded, setResumeUploaded] = useState(false);
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
   const videoRef = useRef(null);
@@ -233,11 +237,31 @@ export default function Mentor() {
     return null;
   };
 
-  const generateInterviewQuestions = async (role, level, numQuestions = 10) => {
+  const generateInterviewQuestions = async (role, level, numQuestions = 10, resumeData = null) => {
     try {
+      let candidateInfo = '';
+      if (resumeData) {
+        candidateInfo = `
+Candidate Information:
+- Name: ${resumeData.name || 'Not provided'}
+- Skills: ${resumeData.skills?.join(', ') || 'Not provided'}
+- Experience: ${resumeData.experience?.map(exp => 
+  `\n  * ${exp.title} at ${exp.company} (${exp.duration})`).join('') || 'Not provided'}
+- Projects: ${resumeData.projects?.map(proj => 
+  `\n  * ${proj.name}: ${proj.description}`).join('') || 'Not provided'}`;
+      }
+
       const prompt = `You are an experienced HR interviewer. Generate exactly ${numQuestions} interview questions for a ${level} level ${role} position. 
 
-Make the questions:
+${candidateInfo ? `Using the candidate's background:${candidateInfo}
+
+Based on their experience and skills, tailor some questions to:
+- Verify their claimed experience and skills
+- Dive deeper into their listed projects
+- Explore how their background aligns with the role
+- Challenge them on relevant technical concepts
+
+` : ''}Make the questions:
 - Realistic and relevant to the role
 - Appropriate for the experience level
 - Professional and clear
@@ -294,26 +318,30 @@ Experience Level: ${level}`;
     }
   };
   const startInterview = async () => {
-    if (!selectedRole || !selectedLevel) return;
+  if (!selectedRole || !selectedLevel) return;
 
-    setIsLoading(true);
-    const questions = await generateInterviewQuestions(
-      selectedRole,
-      selectedLevel,
-      10
-    );
-    setInterviewQuestions(questions); // Fix: Set the questions in state
+  setIsLoading(true);
+  const savedResumeData = localStorage.getItem('resumeAnalysis');
+  const resumeData = savedResumeData ? JSON.parse(savedResumeData) : null;
+  
+  const questions = await generateInterviewQuestions(
+    selectedRole,
+    selectedLevel,
+    10,
+    resumeData
+  );
 
-    setIsStarted(true);
-    const welcomeMessage = {
-      id: Date.now().toString(),
-      type: "bot",
-      content: `Hello. I’m your interviewer for a ${selectedLevel} level ${selectedRole} interview. There are ${questions.length} questions tailored to this role. Please take your time — we’ll begin with: ${questions[0]}`,
-      timestamp: new Date(),
-    };
-    setMessages([welcomeMessage]);
-    setIsLoading(false);
+  setInterviewQuestions(questions);
+  setIsStarted(true);
+  const welcomeMessage = {
+    id: Date.now().toString(),
+    type: "bot",
+    content: `Hello. I'm your interviewer for a ${selectedLevel} level ${selectedRole} position. We'll have ${questions.length} questions tailored to your background. Let's begin with: ${questions[0]}`,
+    timestamp: new Date(),
   };
+  setMessages([welcomeMessage]);
+  setIsLoading(false);
+};
 
   const handleVoiceInput = () => {
     const SpeechRecognition =
@@ -546,6 +574,11 @@ Experience Level: ${level}`;
     return `${m}:${s}`;
   };
 
+  const handleResumeAnalysis = (analysisData) => {
+    setResumeUploaded(true);
+    startInterview();
+  };
+
   if (showResults) {
     return (
       <InterviewResults
@@ -564,64 +597,69 @@ Experience Level: ${level}`;
   if (!isStarted) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-teal-50 to-slate-50">
-        <header className="border-b border-slate-200/60 bg-white/90 backdrop-blur-md shadow-sm relative">
-          <div className="container mx-auto px-4 py-4 flex items-center justify-between relative">
-            <Link
-              to="/"
-              className="flex items-center space-x-2 text-slate-600 hover:text-purple-700 transition-colors group"
-            >
-              <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-              <span className="font-medium">Back to Home</span>
-            </Link>
+      <header className="border-b border-slate-200/60 bg-white/90 backdrop-blur-md shadow-sm relative">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between relative">
+          <Link
+            to="/"
+            className="flex items-center space-x-2 text-slate-600 hover:text-purple-700 transition-colors group"
+          >
+            <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+            <span className="font-medium">Back to Home</span>
+          </Link>
 
-            <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center space-x-2">
-              <div className="w-6 h-6 bg-gradient-to-br from-purple-600 to-teal-600 rounded-lg flex items-center justify-center">
-                <Brain className="w-4 h-4 text-white" />
-              </div>
-              <h1 className="text-center text-xl font-bold text-slate-900">
-                AI Interview Setup
-              </h1>
+          <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center space-x-2">
+            <div className="w-6 h-6 bg-gradient-to-br from-purple-600 to-teal-600 rounded-lg flex items-center justify-center">
+              <Brain className="w-4 h-4 text-white" />
             </div>
-
-            <div className="flex items-center gap-4"></div>
+            <h1 className="text-center text-xl font-bold text-slate-900">
+              AI Interview Setup
+            </h1>
           </div>
-        </header>
 
-        <div className="container mx-auto px-4 py-12">
-          <div className="max-w-2xl mx-auto">
-            <Card className="border-slate-200 shadow-xl bg-white/80 backdrop-blur-sm">
-              <CardHeader className="text-center bg-gradient-to-r from-purple-50 to-teal-50 border-b border-slate-100">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                  <Target className="w-8 h-8 text-white" />
-                </div>
-                <CardTitle className="text-2xl text-slate-900">
-                  Setup Your AI Mock Interview
-                </CardTitle>
-                <p className="text-slate-600">
-                  AI will generate personalized questions for your role
-                </p>
-              </CardHeader>
-              <CardContent className="space-y-6 p-8">
-                {setupStep === 1 && (
-                  <>
-                    <div className="mt-5">
-                      <label className="block text-sm font-medium text-slate-900 mb-3">
-                        What role are you interviewing for?
-                      </label>
-                      <div className="relative" ref={roleDropdownRef}>
-                        <input
-                          type="text"
-                          value={selectedRole || roleSearchTerm}
-                          onChange={(e) => {
-                            setRoleSearchTerm(e.target.value);
-                            setSelectedRole("");
-                            setShowRoleDropdown(true);
-                          }}
-                          onFocus={() => setShowRoleDropdown(true)}
-                          placeholder="Search for a role..."
-                          className="w-full h-12 px-4 border border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 bg-white text-slate-900 placeholder-slate-500"
-                        />
-                        {showRoleDropdown &&
+          <div className="flex items-center gap-4"></div>
+        </div>
+      </header>
+
+      <div className="container mx-auto px-4 py-12">
+        <div className="max-w-2xl mx-auto">
+          <Card className="border-slate-200 shadow-xl bg-white/80 backdrop-blur-sm">
+            <CardHeader className="text-center bg-gradient-to-r from-purple-50 to-teal-50 border-b border-slate-100">
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <Target className="w-8 h-8 text-white" />
+              </div>
+              <CardTitle className="text-2xl text-slate-900">
+                {setupStep === 1 && "Setup Your AI Mock Interview"}
+                {setupStep === 2 && "Interview Guidelines"}
+                {setupStep === 3 && "Upload Your Resume"}
+              </CardTitle>
+              <p className="text-slate-600">
+                {setupStep === 1 && "Choose your role and experience level"}
+                {setupStep === 2 && "Review and accept the guidelines"}
+                {setupStep === 3 && "Enhance your interview with your resume"}
+              </p>
+            </CardHeader>
+            
+            <CardContent className="space-y-6 p-8">
+              {setupStep === 1 && (
+                <>
+                  <div className="mt-5">
+                    <label className="block text-sm font-medium text-slate-900 mb-3">
+                      What role are you interviewing for?
+                    </label>
+                    <div className="relative" ref={roleDropdownRef}>
+                      <input
+                        type="text"
+                        value={selectedRole || roleSearchTerm}
+                        onChange={(e) => {
+                          setRoleSearchTerm(e.target.value);
+                          setSelectedRole("");
+                          setShowRoleDropdown(true);
+                        }}
+                        onFocus={() => setShowRoleDropdown(true)}
+                        placeholder="Search for a role..."
+                        className="w-full p-3 rounded border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                      />
+                      {showRoleDropdown &&
                           (roleSearchTerm || !selectedRole) && (
                             <div className="absolute z-50 w-full mt-1 bg-white border border-slate-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                               {filteredRoles.length > 0 ? (
@@ -661,81 +699,37 @@ Experience Level: ${level}`;
                             </button>
                           </div>
                         )}
-                      </div>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-slate-900 mb-3 ">
-                        Experience Level
-                      </label>
-                      <Select
-                        value={selectedLevel}
-                        onValueChange={setSelectedLevel}
-                      >
-                        <SelectTrigger className="border-slate-300 focus:border-purple-500 focus:ring-purple-500/20 h-12">
-                          <SelectValue placeholder="Select your level" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Entry">
-                            Entry Level (0-2 years)
-                          </SelectItem>
-                          <SelectItem value="Mid">
-                            Mid Level (3-5 years)
-                          </SelectItem>
-                          <SelectItem value="Senior">
-                            Senior Level (6+ years)
-                          </SelectItem>
-                          <SelectItem value="Executive">
-                            Executive Level
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="bg-gradient-to-r from-purple-50 to-teal-50 p-6 rounded-xl border border-purple-100">
-                      <div className="flex items-center space-x-2 mb-3">
-                        <Zap className="w-5 h-5 text-purple-600" />
-                        <h3 className="font-semibold text-slate-900">
-                          AI-Powered Features:
-                        </h3>
-                      </div>
-                      <ul className="text-sm text-slate-700 space-y-2">
-                        <li className="flex items-center space-x-2">
-                          <div className="w-1.5 h-1.5 bg-purple-500 rounded-full"></div>
-                          <span>
-                            AI-generated questions tailored to your role & level
-                          </span>
-                        </li>
-                        <li className="flex items-center space-x-2">
-                          <div className="w-1.5 h-1.5 bg-teal-500 rounded-full"></div>
-                          <span>Real-time AI feedback on your responses</span>
-                        </li>
-                        <li className="flex items-center space-x-2">
-                          <div className="w-1.5 h-1.5 bg-purple-500 rounded-full"></div>
-                          <span>
-                            Voice input support for natural conversation
-                          </span>
-                        </li>
-                        <li className="flex items-center space-x-2">
-                          <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
-                          <span>
-                            Body language & posture analysis via webcam
-                          </span>
-                        </li>
-                      </ul>
-                    </div>
-                    <Button
-                      onClick={() => setSetupStep(2)}
-                      disabled={!selectedRole || !selectedLevel}
-                      className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-4 h-14 text-lg shadow-lg hover:shadow-xl transition-all duration-300"
-                      size="lg"
-                    >
-                      Next
-                    </Button>
-                  </>
-                )}
+                  </div>
 
-                {setupStep === 2 && (
-                  <>
-                    <Card className="border border-slate-200 shadow-lg bg-white/80 backdrop-blur-lg mx-auto mt-7 max-w-xl">
+                  <div className="mt-5">
+                    <label className="block text-sm font-medium text-slate-900 mb-3">
+                      What is your experience level?
+                    </label>
+                    <div className="grid grid-cols-2 gap-4">
+                      {["Entry Level", "Mid Level", "Senior Level", "Executive Level"].map(
+                        (level) => (
+                          <button
+                            key={level}
+                            onClick={() => setSelectedLevel(level)}
+                            className={`p-4 rounded-lg border-2 transition-all duration-200 ${
+                              selectedLevel === level
+                                ? "border-purple-600 bg-purple-50 text-purple-700"
+                                : "border-slate-200 hover:border-purple-300 hover:bg-purple-50/50"
+                            }`}
+                          >
+                            {level}
+                          </button>
+                        )
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {setupStep === 2 && (
+                <div className="space-y-6">
+                  <Card className="border border-slate-200 shadow-lg bg-white/80 backdrop-blur-lg mx-auto mt-7 max-w-xl">
                       <CardHeader className="bg-gradient-to-r from-purple-50 to-purple-100 border-b border-slate-100 px-6 py-4">
                         <CardTitle className="text-lg text-slate-900 flex items-center space-x-2">
                           <Shield className="w-5 h-5 text-purple-600" />
@@ -767,39 +761,52 @@ Experience Level: ${level}`;
                         </ul>
                       </CardContent>
                     </Card>
+                </div>
+              )}
 
-                    <Button
-                      onClick={startInterview}
-                      disabled={isLoading}
-                      className="w-full mt-6 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-4 h-14 text-lg shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
-                      size="lg"
-                    >
-                      {isLoading ? (
-                        <>
-                          <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
-                          Generating Interview...
-                        </>
-                      ) : (
-                        <>
-                          Start AI Interview
-                          <Play className="ml-2 w-5 h-5" />
-                        </>
-                      )}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => setSetupStep(1)}
-                      className="w-full mt-2 border-slate-300 text-purple-700 hover:bg-purple-50"
-                    >
-                      Back
-                    </Button>
-                  </>
+              {setupStep === 3 && (
+                <div className="space-y-6">
+                  <p className="text-gray-600">
+                    Upload your resume to get more personalized interview questions.
+                  </p>
+                  <ResumeParser 
+                    onAnalysisComplete={handleResumeAnalysis}
+                  />
+                </div>
+              )}
+
+              <div className="flex justify-between mt-8">
+                {setupStep > 1 && (
+                  <Button
+                    onClick={() => setSetupStep((prev) => prev - 1)}
+                    className="bg-slate-100 hover:bg-slate-200 text-slate-700"
+                  >
+                    Back
+                  </Button>
                 )}
-              </CardContent>
-            </Card>
-          </div>
+                
+                <Button
+                  onClick={() => {
+                    if (setupStep === 1 && selectedRole && selectedLevel) {
+                      setSetupStep(2);
+                    } else if (setupStep === 2) {
+                      setSetupStep(3);
+                    }
+                  }}
+                  disabled={
+                    (setupStep === 1 && (!selectedRole || !selectedLevel)) ||
+                    (setupStep === 3 && !resumeUploaded)
+                  }
+                  className="bg-gradient-to-r from-purple-600 to-violet-700 hover:from-purple-700 hover:to-violet-800 text-white ml-auto"
+                >
+                  {setupStep === 3 ? "Start Interview" : "Continue"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
+    </div>
     );
   }
 
