@@ -7,6 +7,7 @@ import Mentor from "./Components/Mentor.jsx";
 import Auth from "./Components/Auth.jsx";
 import ProtectedRoute from "./Components/ProtectedRoute.jsx";
 import ResumeParser from "./Utils/ResumeParser.jsx";
+import CodeEditor from "./Components/CodeEditor.jsx";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
             <Route path="/auth" element={<Auth />} />
             <Route path="/" element={<MainPage />} />
             <Route path="/ResumeParser" element={<ResumeParser />} />
+            <Route path="/CodeEditor" element={<CodeEditor />} />
             <Route
       path="/interview"
       element={

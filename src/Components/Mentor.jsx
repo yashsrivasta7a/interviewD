@@ -19,11 +19,14 @@ import {
   Play,
   Camera,
   Shield,
+  Upload,
+  FileText,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import { askAzureText, askAzureWithImage } from "../Utils/azureOpenAi";
 import InterviewResults from "./InterviewResults";
+import ResumeParser from "../Utils/ResumeParser";
 
 import {
   Select,
@@ -47,6 +50,12 @@ const nextQuestionStarters = [
   "Great insight — try this next:",
   "Awesome — here’s the next question:",
 ];
+
+// Import step components
+import Step1RoleSelection from './Step1RoleSelection';
+import Step2Guidelines from './Step2Guidelines';
+import Step3ResumeUpload from './Step3ResumeUpload';
+import InterviewSession from './InterviewSession';
 
 export default function Mentor() {
   const allRoles = [
@@ -136,7 +145,8 @@ export default function Mentor() {
   const [userResponses, setUserResponses] = useState([]); // Store user responses
   const [aiFeedback, setAiFeedback] = useState([]); // Store AI feedback for end display
   const [showResults, setShowResults] = useState(false); // Show results page
-  const [setupStep, setSetupStep] = useState(1); // 1 = form, 2 = terms
+  const [setupStep, setSetupStep] = useState(1); // 1 = form, 2 = terms, 3 = resume
+  const [resumeUploaded, setResumeUploaded] = useState(false);
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
   const videoRef = useRef(null);
@@ -233,11 +243,31 @@ export default function Mentor() {
     return null;
   };
 
-  const generateInterviewQuestions = async (role, level, numQuestions = 10) => {
+  const generateInterviewQuestions = async (role, level, numQuestions = 10, resumeData = null) => {
     try {
+      let candidateInfo = '';
+      if (resumeData) {
+        candidateInfo = `
+Candidate Information:
+- Name: ${resumeData.name || 'Not provided'}
+- Skills: ${resumeData.skills?.join(', ') || 'Not provided'}
+- Experience: ${resumeData.experience?.map(exp => 
+  `\n  * ${exp.title} at ${exp.company} (${exp.duration})`).join('') || 'Not provided'}
+- Projects: ${resumeData.projects?.map(proj => 
+  `\n  * ${proj.name}: ${proj.description}`).join('') || 'Not provided'}`;
+      }
+
       const prompt = `You are an experienced HR interviewer. Generate exactly ${numQuestions} interview questions for a ${level} level ${role} position. 
 
-Make the questions:
+${candidateInfo ? `Using the candidate's background:${candidateInfo}
+
+Based on their experience and skills, tailor some questions to:
+- Verify their claimed experience and skills
+- Dive deeper into their listed projects
+- Explore how their background aligns with the role
+- Challenge them on relevant technical concepts
+
+` : ''}Make the questions:
 - Realistic and relevant to the role
 - Appropriate for the experience level
 - Professional and clear
@@ -294,26 +324,30 @@ Experience Level: ${level}`;
     }
   };
   const startInterview = async () => {
-    if (!selectedRole || !selectedLevel) return;
+  if (!selectedRole || !selectedLevel) return;
 
-    setIsLoading(true);
-    const questions = await generateInterviewQuestions(
-      selectedRole,
-      selectedLevel,
-      10
-    );
-    setInterviewQuestions(questions); // Fix: Set the questions in state
+  setIsLoading(true);
+  const savedResumeData = localStorage.getItem('resumeAnalysis');
+  const resumeData = savedResumeData ? JSON.parse(savedResumeData) : null;
+  
+  const questions = await generateInterviewQuestions(
+    selectedRole,
+    selectedLevel,
+    10,
+    resumeData
+  );
 
-    setIsStarted(true);
-    const welcomeMessage = {
-      id: Date.now().toString(),
-      type: "bot",
-      content: `Hello. I’m your interviewer for a ${selectedLevel} level ${selectedRole} interview. There are ${questions.length} questions tailored to this role. Please take your time — we’ll begin with: ${questions[0]}`,
-      timestamp: new Date(),
-    };
-    setMessages([welcomeMessage]);
-    setIsLoading(false);
+  setInterviewQuestions(questions);
+  setIsStarted(true);
+  const welcomeMessage = {
+    id: Date.now().toString(),
+    type: "bot",
+    content: `Hello. I'm your interviewer for a ${selectedLevel} level ${selectedRole} position. We'll have ${questions.length} questions tailored to your background. Let's begin with: ${questions[0]}`,
+    timestamp: new Date(),
   };
+  setMessages([welcomeMessage]);
+  setIsLoading(false);
+};
 
   const handleVoiceInput = () => {
     const SpeechRecognition =
@@ -546,6 +580,11 @@ Experience Level: ${level}`;
     return `${m}:${s}`;
   };
 
+  const handleResumeAnalysis = (analysisData) => {
+    setResumeUploaded(true);
+    startInterview();
+  };
+
   if (showResults) {
     return (
       <InterviewResults
@@ -595,205 +634,45 @@ Experience Level: ${level}`;
                   <Target className="w-8 h-8 text-white" />
                 </div>
                 <CardTitle className="text-2xl text-slate-900">
-                  Setup Your AI Mock Interview
+                  {setupStep === 1 && "Setup Your AI Mock Interview"}
+                  {setupStep === 2 && "Interview Guidelines"}
+                  {setupStep === 3 && "Upload Your Resume"}
                 </CardTitle>
                 <p className="text-slate-600">
-                  AI will generate personalized questions for your role
+                  {setupStep === 1 && "Choose your role and experience level"}
+                  {setupStep === 2 && "Review and accept the guidelines"}
+                  {setupStep === 3 && "Enhance your interview with your resume"}
                 </p>
               </CardHeader>
+              
               <CardContent className="space-y-6 p-8">
                 {setupStep === 1 && (
-                  <>
-                    <div className="mt-5">
-                      <label className="block text-sm font-medium text-slate-900 mb-3">
-                        What role are you interviewing for?
-                      </label>
-                      <div className="relative" ref={roleDropdownRef}>
-                        <input
-                          type="text"
-                          value={selectedRole || roleSearchTerm}
-                          onChange={(e) => {
-                            setRoleSearchTerm(e.target.value);
-                            setSelectedRole("");
-                            setShowRoleDropdown(true);
-                          }}
-                          onFocus={() => setShowRoleDropdown(true)}
-                          placeholder="Search for a role..."
-                          className="w-full h-12 px-4 border border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 bg-white text-slate-900 placeholder-slate-500"
-                        />
-                        {showRoleDropdown &&
-                          (roleSearchTerm || !selectedRole) && (
-                            <div className="absolute z-50 w-full mt-1 bg-white border border-slate-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                              {filteredRoles.length > 0 ? (
-                                filteredRoles.map((role, index) => (
-                                  <div
-                                    key={index}
-                                    onClick={() => {
-                                      setSelectedRole(role);
-                                      setRoleSearchTerm("");
-                                      setShowRoleDropdown(false);
-                                    }}
-                                    className="px-4 py-3 hover:bg-purple-50 cursor-pointer text-slate-900 border-b border-slate-100 last:border-b-0"
-                                  >
-                                    {role}
-                                  </div>
-                                ))
-                              ) : (
-                                <div className="px-4 py-3 text-slate-500 italic">
-                                  No roles found matching "{roleSearchTerm}"
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        {selectedRole && (
-                          <div className="mt-2 flex items-center space-x-2">
-                            <div className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
-                              Selected: {selectedRole}
-                            </div>
-                            <button
-                              onClick={() => {
-                                setSelectedRole("");
-                                setRoleSearchTerm("");
-                              }}
-                              className="text-slate-500 hover:text-red-500 text-sm"
-                            >
-                              Clear
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-slate-900 mb-3 ">
-                        Experience Level
-                      </label>
-                      <Select
-                        value={selectedLevel}
-                        onValueChange={setSelectedLevel}
-                      >
-                        <SelectTrigger className="border-slate-300 focus:border-purple-500 focus:ring-purple-500/20 h-12">
-                          <SelectValue placeholder="Select your level" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Entry">
-                            Entry Level (0-2 years)
-                          </SelectItem>
-                          <SelectItem value="Mid">
-                            Mid Level (3-5 years)
-                          </SelectItem>
-                          <SelectItem value="Senior">
-                            Senior Level (6+ years)
-                          </SelectItem>
-                          <SelectItem value="Executive">
-                            Executive Level
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="bg-gradient-to-r from-purple-50 to-teal-50 p-6 rounded-xl border border-purple-100">
-                      <div className="flex items-center space-x-2 mb-3">
-                        <Zap className="w-5 h-5 text-purple-600" />
-                        <h3 className="font-semibold text-slate-900">
-                          AI-Powered Features:
-                        </h3>
-                      </div>
-                      <ul className="text-sm text-slate-700 space-y-2">
-                        <li className="flex items-center space-x-2">
-                          <div className="w-1.5 h-1.5 bg-purple-500 rounded-full"></div>
-                          <span>
-                            AI-generated questions tailored to your role & level
-                          </span>
-                        </li>
-                        <li className="flex items-center space-x-2">
-                          <div className="w-1.5 h-1.5 bg-teal-500 rounded-full"></div>
-                          <span>Real-time AI feedback on your responses</span>
-                        </li>
-                        <li className="flex items-center space-x-2">
-                          <div className="w-1.5 h-1.5 bg-purple-500 rounded-full"></div>
-                          <span>
-                            Voice input support for natural conversation
-                          </span>
-                        </li>
-                        <li className="flex items-center space-x-2">
-                          <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
-                          <span>
-                            Body language & posture analysis via webcam
-                          </span>
-                        </li>
-                      </ul>
-                    </div>
-                    <Button
-                      onClick={() => setSetupStep(2)}
-                      disabled={!selectedRole || !selectedLevel}
-                      className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-4 h-14 text-lg shadow-lg hover:shadow-xl transition-all duration-300"
-                      size="lg"
-                    >
-                      Next
-                    </Button>
-                  </>
+                  <Step1RoleSelection
+                    selectedRole={selectedRole}
+                    setSelectedRole={setSelectedRole}
+                    selectedLevel={selectedLevel}
+                    setSelectedLevel={setSelectedLevel}
+                    roleSearchTerm={roleSearchTerm}
+                    setRoleSearchTerm={setRoleSearchTerm}
+                    showRoleDropdown={showRoleDropdown}
+                    setShowRoleDropdown={setShowRoleDropdown}
+                    allRoles={allRoles}
+                    onContinue={() => setSetupStep(2)}
+                  />
                 )}
 
                 {setupStep === 2 && (
-                  <>
-                    <Card className="border border-slate-200 shadow-lg bg-white/80 backdrop-blur-lg mx-auto mt-7 max-w-xl">
-                      <CardHeader className="bg-gradient-to-r from-purple-50 to-purple-100 border-b border-slate-100 px-6 py-4">
-                        <CardTitle className="text-lg text-slate-900 flex items-center space-x-2">
-                          <Shield className="w-5 h-5 text-purple-600" />
-                          <span>Terms & Interview Etiquette</span>
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="p-6">
-                        <ul className="mt-4 text-sm text-slate-700 space-y-3 list-disc pl-5">
-                          <li>
-                            Ensure you are in a well-lit environment for clear
-                            video analysis.
-                          </li>
-                          <li>
-                            Maintain a good posture: sit upright and face the
-                            camera directly.
-                          </li>
-                          <li>
-                            Dress appropriately as you would for a real
-                            interview.
-                          </li>
-                          <li>Minimize background noise and distractions.</li>
-                          <li>Be prepared with a notepad and pen if needed.</li>
-                          <li>Keep your mobile phone on silent mode.</li>
-                          <li>Be honest and authentic in your responses.</li>
-                          <li>
-                            By starting, you agree to these terms and to being
-                            recorded for feedback purposes.
-                          </li>
-                        </ul>
-                      </CardContent>
-                    </Card>
+                  <Step2Guidelines
+                    onBack={() => setSetupStep(1)}
+                    onContinue={() => setSetupStep(3)}
+                  />
+                )}
 
-                    <Button
-                      onClick={startInterview}
-                      disabled={isLoading}
-                      className="w-full mt-6 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-4 h-14 text-lg shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
-                      size="lg"
-                    >
-                      {isLoading ? (
-                        <>
-                          <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
-                          Generating Interview...
-                        </>
-                      ) : (
-                        <>
-                          Start AI Interview
-                          <Play className="ml-2 w-5 h-5" />
-                        </>
-                      )}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => setSetupStep(1)}
-                      className="w-full mt-2 border-slate-300 text-purple-700 hover:bg-purple-50"
-                    >
-                      Back
-                    </Button>
-                  </>
+                {setupStep === 3 && (
+                  <Step3ResumeUpload
+                    onBack={() => setSetupStep(2)}
+                    onResumeAnalysis={handleResumeAnalysis}
+                  />
                 )}
               </CardContent>
             </Card>
