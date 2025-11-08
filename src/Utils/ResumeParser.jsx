@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Upload, FileText, Loader2, XCircle } from 'lucide-react';
+import { Upload, FileText, Loader2, XCircle, CheckCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const ResumeParser = ({ onAnalysisComplete }) => {
   const [file, setFile] = useState(null);
@@ -7,6 +8,7 @@ const ResumeParser = ({ onAnalysisComplete }) => {
   const [parsedText, setParsedText] = useState('');
   const [error, setError] = useState('');
   const [pdfLoaded, setPdfLoaded] = useState(false);
+  const navigate = useNavigate();
 
   // Azure OpenAI Configuration
   const AZURE_ENDPOINT = import.meta.env.VITE_AZURE_OPENAI_ENDPOINT;
@@ -95,9 +97,7 @@ const ResumeParser = ({ onAnalysisComplete }) => {
         return;
       }
 
-      setParsedText(extractedText);
-
-      // Analyze with Azure GPT
+      // Analyze with Azure GPT - don't set parsedText until this completes
       await analyzeWithAzureGPT(extractedText);
     } catch (err) {
       console.error('Error:', err);
@@ -191,10 +191,12 @@ Analyze the resume thoroughly and provide detailed insights. If information is m
         localStorage.setItem('resumeAnalysis', JSON.stringify(analysisData));
 
         // Notify parent component that analysis is complete
-        // This will trigger navigation to the next page
         if (onAnalysisComplete) {
           onAnalysisComplete(analysisData);
         }
+
+        // Show simple success message
+        setParsedText('SUCCESS');
       } catch (parseErr) {
         console.error('JSON Parse Error:', parseErr);
         setError('Failed to parse AI response. Please try again.');
@@ -208,10 +210,8 @@ Analyze the resume thoroughly and provide detailed insights. If information is m
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <div >
-        
-
+    <div className="max-w-4xl mx-auto">
+      <div>
         {!pdfLoaded && (
           <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
             <p className="text-yellow-800">Loading PDF library...</p>
@@ -273,7 +273,12 @@ Analyze the resume thoroughly and provide detailed insights. If information is m
           </div>
         )}
 
-        {/* Analysis complete - data is stored in localStorage but not displayed */}
+        {parsedText && !error && (
+          <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
+            <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+            <p className="text-green-700 font-medium">Resume parsed successfully! ✅</p>
+          </div>
+        )}
       </div>
     </div>
   );
