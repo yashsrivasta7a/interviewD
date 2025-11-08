@@ -4,14 +4,13 @@ import { Card, CardContent } from "./card"
 import { ArrowRight, Users, Brain, Trophy, Star, Zap, Shield, Award } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import Button1 from "./UI/Buttons1";
-import { auth } from "../Utils/Firebase";
-import { signOut, onAuthStateChanged } from "firebase/auth";
+import { useAuth0 } from '@auth0/auth0-react';
 import { motion } from "framer-motion";
 
 export default function MainPage() {
-  const [user, setUser] = useState(null);
+  const { user, isAuthenticated, logout, loginWithRedirect } = useAuth0();
   const navigate = useNavigate();
-    const [x, setX] = useState(0);
+  const [x, setX] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -20,22 +19,25 @@ export default function MainPage() {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, setUser);
-    return () => unsubscribe();
-  }, []);
-
   const handleSignOut = async () => {
-    await signOut(auth);
-    setUser(null);
-    navigate("/");
+    logout({ 
+      logoutParams: {
+        returnTo: window.location.origin 
+      }
+    });
+  };
+
+  const handleLogin = async () => {
+    await loginWithRedirect();
   };
 
   const handleStartInterview = () => {
-    if (user) {
+    if (isAuthenticated) {
       navigate("/interview");
     } else {
-      navigate("/auth");
+      loginWithRedirect({
+        appState: { returnTo: "/interview" }
+      });
     }
   };
   
@@ -116,15 +118,14 @@ export default function MainPage() {
             </a>
           </nav>
           <div className="flex items-center gap-3">
-            {!user ? (
-              <Link to="/auth">
-                <Button
-                  variant="outline"
-                  className="border-slate-300 text-purple-700 hover:bg-purple-50 active:bg-purple-200 focus:bg-purple-200 px-6 py-2 font-semibold shadow-sm hover:shadow-md transition-all duration-300"
-                >
-                  Login / Sign In
-                </Button>
-              </Link>
+            {!isAuthenticated ? (
+              <Button
+                onClick={handleLogin}
+                variant="outline"
+                className="border-slate-300 text-purple-700 hover:bg-purple-50 active:bg-purple-200 focus:bg-purple-200 px-6 py-2 font-semibold shadow-sm hover:shadow-md transition-all duration-300"
+              >
+                Login / Sign In
+              </Button>
             ) : (
               <Button
                 onClick={handleSignOut}

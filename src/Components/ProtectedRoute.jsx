@@ -1,13 +1,12 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
-import { auth } from "../Utils/Firebase";
-import { useAuthState } from "react-firebase-hooks/auth";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const ProtectedRoute = ({ children }) => {
-  const [user, loading] = useAuthState(auth);
+  const { isAuthenticated, isLoading } = useAuth0();
 
-  if (loading) return <div>Loading...</div>;
-  if (!user) return <Navigate to="/auth" replace />;
+  if (isLoading) return <div>Loading...</div>;
+  if (!isAuthenticated) return <Navigate to="/" replace />;
   return children;
 };
 

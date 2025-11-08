@@ -1,146 +1,66 @@
-import React, { useState, useEffect } from "react";
-import { auth, googleProvider } from "../Utils/Firebase";
-import {
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
-  signInWithPopup,
-} from "firebase/auth";
+import React from "react";
+import { useAuth0 } from "@auth0/auth0-react";
 import { Button } from "./button";
 import { Card, CardHeader, CardTitle, CardContent } from "./card";
 import { Brain } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Auth = ({ onAuthSuccess }) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [user, setUser] = useState(auth.currentUser);
+  const { loginWithRedirect, logout, isAuthenticated, user } = useAuth0();
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (u) => {
-      setUser(u);
-      if (u && onAuthSuccess) onAuthSuccess();
-    });
-    return () => unsubscribe();
-  }, [onAuthSuccess]);
-
-  const handleSignIn = async () => {
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-    } catch (err) {
-      alert(err.message);
+  // If the user is authenticated and we have an onAuthSuccess callback, call it
+  React.useEffect(() => {
+    if (isAuthenticated && onAuthSuccess) {
+      onAuthSuccess();
     }
+  }, [isAuthenticated, onAuthSuccess]);
+
+  const handleLogin = () => {
+    loginWithRedirect();
   };
 
-  const handleSignUp = async () => {
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-    } catch (err) {
-      alert(err.message);
-    }
+  const handleSignOut = () => {
+    logout({ returnTo: window.location.origin });
   };
 
-  const handleSignOut = async () => {
-    await signOut(auth);
-  };
-
-  const handleGoogleSignIn = async () => {
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      if (result.user && onAuthSuccess) {
-        onAuthSuccess();
-      }
-    } catch (err) {
-      console.error("Google Sign In Error:", err);
-      alert(err.code === 'auth/popup-blocked' 
-        ? 'Please allow popups for this site to use Google Sign In' 
-        : 'Failed to sign in with Google. Please try again.');
-    }
-  };
-
-  if (user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-teal-50 to-slate-50">
-        <Card className="max-w-md w-full shadow-xl bg-white/80 backdrop-blur-sm">
-          <CardHeader className="flex flex-col items-center bg-gradient-to-r from-purple-50 to-teal-50 border-b border-slate-100">
-            <div className="w-14 h-14 bg-gradient-to-br from-purple-600 to-teal-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
-              <Brain className="w-8 h-8 text-white" />
-            </div>
-            <CardTitle className="text-2xl text-slate-900">Account</CardTitle>
-            <p className="text-slate-600 text-center">
-              Signed in as: {user.email || user.displayName}
-            </p>
+  return (
+    <div className="min-h-screen bg-gradient-to-r from-violet-200 to-pink-200">
+      <div className="container mx-auto px-4 py-16">
+        <Card className="max-w-md mx-auto bg-white/90 backdrop-blur">
+          <CardHeader className="text-center">
+            <Brain className="w-12 h-12 mx-auto text-violet-600" />
+            <CardTitle className="text-2xl font-bold mt-4">Welcome to Interview.D</CardTitle>
           </CardHeader>
-          <CardContent className="flex flex-col items-center gap-4 p-8">
-            <Button
-              onClick={handleSignOut}
-              className="w-full bg-gradient-to-r from-fuchsia-600 to-purple-700 hover:from-fuchsia-700 hover:to-purple-800 text-white py-3 text-lg shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              Sign Out
-            </Button>
-            <Link to="/">
-              <Button variant="outline" className="w-full">
-                Back to Home
-              </Button>
-            </Link>
+          <CardContent className="space-y-4">
+            {!isAuthenticated ? (
+              <div className="space-y-4">
+                <Button
+                  className="w-full bg-violet-600 hover:bg-violet-700 text-white"
+                  onClick={handleLogin}
+                >
+                  Sign In with Auth0
+                </Button>
+                <p className="text-center text-sm text-gray-600">
+                  By signing in, you agree to our Terms of Service and Privacy Policy
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4 text-center">
+                <p className="text-lg">Welcome, {user.name || user.email}!</p>
+                <Button
+                  className="w-full bg-violet-600 hover:bg-violet-700 text-white"
+                  onClick={handleSignOut}
+                >
+                  Sign Out
+                </Button>
+                <Link to="/">
+                  <Button className="w-full">Go to Home</Button>
+                </Link>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-teal-50 to-slate-50">
-      <Card className="max-w-md w-full shadow-xl bg-white/80 backdrop-blur-sm">
-        <CardHeader className="flex flex-col items-center bg-gradient-to-r from-purple-50 to-teal-50 border-b border-slate-100">
-          <div className="w-14 h-14 bg-gradient-to-br from-purple-600 to-teal-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
-            <Brain className="w-8 h-8 text-white" />
-          </div>
-          <CardTitle className="text-2xl text-slate-900">
-            Login or Sign Up
-          </CardTitle>
-          <p className="text-slate-600 text-center">
-            Access your MockMate account
-          </p>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4 p-8">
-          <input
-            className="p-3 rounded border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-400"
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <input
-            className="p-3 rounded border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-400"
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <div className="flex gap-2">
-            <Button
-              onClick={handleSignIn}
-              className="flex-1 bg-gradient-to-r from-fuchsia-600 to-purple-700 hover:from-fuchsia-700 hover:to-purple-800 text-white"
-            >
-              Sign In
-            </Button>
-            <Button
-              onClick={handleSignUp}
-              className="flex-1 bg-gradient-to-r from-purple-600 to-fuchsia-700 hover:from-purple-700 hover:to-fuchsia-800 text-white"
-            >
-              Sign Up
-            </Button>
-          </div>
-          <Button
-            onClick={handleGoogleSignIn}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white mt-2"
-          >
-            Sign in with Google
-          </Button>
-        </CardContent>
-      </Card>
     </div>
   );
 };
