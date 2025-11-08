@@ -1,5 +1,6 @@
+import { configDotenv } from "dotenv";
 import OpenAI from "openai";
-
+configDotenv();
 // Azure TTS Configuration
 const ttsEndpoint = process.env.ttsEndpoint;
 const azureopenaiTTS = process.env.azureopenaiTTS;
