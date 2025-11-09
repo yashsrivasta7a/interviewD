@@ -4,5 +4,19 @@
             "source": "/(.*)",
             "destination": "/"
         }
-    ]
+    ],
+    "builds": [
+        {
+            "src": "package.json",
+            "use": "@vercel/node",
+            "config": {
+                "maxLambdaSize": "15mb"
+            }
+        }
+    ],
+    "build": {
+        "env": {
+            "NODE_OPTIONS": "--max_old_space_size=4096"
+        }
+    }
 }
