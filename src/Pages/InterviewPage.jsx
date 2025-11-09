@@ -117,12 +117,12 @@ setSecondsElapsed(0);
 
   if (!isStarted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-teal-50 to-slate-50">
-        <header className="border-b border-slate-200/60 bg-white/90 backdrop-blur-md shadow-sm">
+      <div className="min-h-screen bg-black">
+        <header className="border-b border-slate-700 bg-gradient-to-r from-slate-900 to-slate-800 backdrop-blur-md shadow-lg">
           <div className="container mx-auto px-4 py-4 flex items-center justify-between">
             <Link
               to="/"
-              className="flex items-center space-x-2 text-slate-600 hover:text-purple-700 transition-colors group"
+              className="flex items-center space-x-2 text-slate-300 hover:text-white transition-colors group"
             >
               <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
               <span className="font-medium">Back to Home</span>
@@ -131,7 +131,7 @@ setSecondsElapsed(0);
               <div className="w-6 h-6 bg-gradient-to-br from-purple-600 to-teal-600 rounded-lg flex items-center justify-center">
                 <Brain className="w-4 h-4 text-white" />
               </div>
-              <h1 className="text-xl font-bold text-slate-900">Interview Setup</h1>
+              <h1 className="text-xl font-bold text-white">Interview Setup</h1>
             </div>
             <div></div>
           </div>
@@ -139,21 +139,21 @@ setSecondsElapsed(0);
 
         <div className="container mx-auto px-4 py-12">
           <div className="max-w-2xl mx-auto">
-            <Card className="border-slate-200 shadow-xl bg-white/80 backdrop-blur-sm">
-              <CardHeader className="text-center bg-gradient-to-r from-purple-50 to-teal-50 border-b border-slate-100">
+            <Card className="border-slate-700 shadow-xl bg-gradient-to-br from-slate-800 to-slate-900 backdrop-blur-sm">
+              <CardHeader className="text-center bg-gradient-to-r from-slate-800 to-slate-700 border-b border-slate-600">
                 <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                   <Target className="w-8 h-8 text-white" />
                 </div>
-                <CardTitle className="text-2xl text-slate-900">Setup Your Mock Interview</CardTitle>
-                <p className="text-slate-600">Configure your interview preferences to get started</p>
+                <CardTitle className="text-2xl text-white">Setup Your Mock Interview</CardTitle>
+                <p className="text-slate-300">Configure your interview preferences to get started</p>
               </CardHeader>
               <CardContent className="space-y-6 p-8">
                 <div>
-                  <label className="block text-sm font-medium text-slate-900 mb-3">
+                  <label className="block text-sm font-medium text-white mb-3">
                     What role are you interviewing for?
                   </label>
                   <Select value={selectedRole} onValueChange={setSelectedRole}>
-                    <SelectTrigger className="border-slate-300 focus:border-purple-500 focus:ring-purple-500/20 h-12">
+                    <SelectTrigger className="border-slate-600 bg-slate-700 text-gray-300 focus:border-purple-500 focus:ring-purple-500/20 h-12">
                       <SelectValue placeholder="Select a role" />
                     </SelectTrigger>
                     <SelectContent>
@@ -170,9 +170,9 @@ setSecondsElapsed(0);
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-900 mb-3">Experience Level</label>
+                  <label className="block text-sm font-medium text-white mb-3">Experience Level</label>
                   <Select value={selectedLevel} onValueChange={setSelectedLevel}>
-                    <SelectTrigger className="border-slate-300 focus:border-purple-500 focus:ring-purple-500/20 h-12">
+                    <SelectTrigger className="border-slate-600 bg-slate-700 text-gray-300 focus:border-purple-500 focus:ring-purple-500/20 h-12">
                       <SelectValue placeholder="Select your level" />
                     </SelectTrigger>
                     <SelectContent>
@@ -184,26 +184,26 @@ setSecondsElapsed(0);
                   </Select>
                 </div>
 
-                <div className="bg-gradient-to-r from-purple-50 to-teal-50 p-6 rounded-xl border border-purple-100">
+                <div className="bg-slate-700/50 border border-slate-600 p-6 rounded-xl">
                   <div className="flex items-center space-x-2 mb-3">
-                    <Zap className="w-5 h-5 text-purple-600" />
-                    <h3 className="font-semibold text-slate-900">What to Expect:</h3>
+                    <Zap className="w-5 h-5 text-purple-400" />
+                    <h3 className="font-semibold text-white">What to Expect:</h3>
                   </div>
-                  <ul className="text-sm text-slate-700 space-y-2">
+                  <ul className="text-sm text-gray-300 space-y-2">
                     <li className="flex items-center space-x-2">
-                      <div className="w-1.5 h-1.5 bg-purple-500 rounded-full"></div>
+                      <div className="w-1.5 h-1.5 bg-purple-400 rounded-full"></div>
                       <span>{interviewQuestions.length} behavioral and role-specific questions</span>
                     </li>
                     <li className="flex items-center space-x-2">
-                      <div className="w-1.5 h-1.5 bg-teal-500 rounded-full"></div>
+                      <div className="w-1.5 h-1.5 bg-teal-400 rounded-full"></div>
                       <span>Real-time feedback and suggestions</span>
                     </li>
                     <li className="flex items-center space-x-2">
-                      <div className="w-1.5 h-1.5 bg-coral-500 rounded-full"></div>
+                      <div className="w-1.5 h-1.5 bg-coral-400 rounded-full"></div>
                       <span>15-20 minute interview duration</span>
                     </li>
                     <li className="flex items-center space-x-2">
-                      <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
+                      <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></div>
                       <span>Detailed performance analysis at the end</span>
                     </li>
                   </ul>
@@ -227,31 +227,31 @@ setSecondsElapsed(0);
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-teal-50 to-slate-50">
-      <header className="border-b border-slate-200/60 bg-white/90 backdrop-blur-md shadow-sm">
+    <div className="min-h-screen bg-black">
+      <header className="border-b border-slate-700 bg-gradient-to-r from-slate-900 to-slate-800 backdrop-blur-md shadow-lg">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <Button
               variant="ghost"
               onClick={resetInterview}
-              className="text-slate-600 hover:text-purple-700 hover:bg-purple-50 transition-all duration-300"
+              className="text-slate-300 hover:text-white hover:bg-slate-700 transition-all duration-300"
             >
               <ArrowLeft className="w-5 h-5 mr-2" />
               Reset
             </Button>
             <div className="flex items-center space-x-2">
-              <Badge variant="outline" className="border-purple-300 text-purple-700 bg-purple-50">
+              <Badge variant="outline" className="border-purple-400 text-purple-300 bg-purple-900/30">
                 {selectedRole}
               </Badge>
-              <Badge variant="outline" className="border-teal-300 text-teal-700 bg-teal-50">
+              <Badge variant="outline" className="border-teal-400 text-teal-300 bg-teal-900/30">
                 {selectedLevel}
               </Badge>
             </div>
           </div>
-          <div className="text-sm font-medium text-slate-600 bg-white/60 px-3 py-1 rounded-full">
+          <div className="text-sm font-medium text-gray-300 bg-slate-700 px-3 py-1 rounded-full">
             Question {currentQuestion + 1} of {interviewQuestions.length}
           </div>
-          <div className="text-sm font-medium text-slate-600 bg-white/60 px-3 py-1 rounded-full">
+          <div className="text-sm font-medium text-gray-300 bg-slate-700 px-3 py-1 rounded-full">
   Time: {formatTime(secondsElapsed)}
 </div>
 
@@ -262,13 +262,13 @@ setSecondsElapsed(0);
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Chat Area */}
           <div className="lg:col-span-2">
-            <Card className="h-[600px] flex flex-col border-slate-200 shadow-xl bg-white/80 backdrop-blur-sm">
-              <CardHeader className="bg-gradient-to-r from-purple-50 to-teal-50 border-b border-slate-200">
+            <Card className="h-[600px] flex flex-col border-white/10 shadow-xl bg-white/[0.02] backdrop-blur-xl">
+              <CardHeader className="bg-gradient-to-r from-slate-800 to-slate-700 border-b border-slate-700">
                 <div className="flex items-center space-x-2">
                   <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-teal-600 rounded-lg flex items-center justify-center">
                     <Brain className="w-5 h-5 text-white" />
                   </div>
-                  <CardTitle className="text-lg text-slate-900">Interview Session</CardTitle>
+                  <CardTitle className="text-lg text-white">Interview Session</CardTitle>
                 </div>
               </CardHeader>
               <CardContent className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -278,11 +278,11 @@ setSecondsElapsed(0);
                       className={`max-w-[80%] p-4 rounded-2xl shadow-sm ${
                         message.type === "user"
                           ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white"
-                          : "bg-white border border-slate-200 text-slate-900"
+                          : "bg-slate-800/80 border border-slate-700 text-gray-300"
                       }`}
                     >
                       <p className="text-sm leading-relaxed">{message.content}</p>
-                      <p className={`text-xs mt-2 ${message.type === "user" ? "text-purple-200" : "text-slate-500"}`}>
+                      <p className={`text-xs mt-2 ${message.type === "user" ? "text-purple-200" : "text-gray-500"}`}>
                         {message.timestamp.toLocaleTimeString()}
                       </p>
                     </div>
@@ -292,13 +292,13 @@ setSecondsElapsed(0);
               </CardContent>
 
               {!isComplete && (
-                <div className="p-4 border-t border-slate-200 bg-slate-50/50">
+                <div className="p-4 border-t border-slate-700 bg-slate-800/50">
                   <div className="flex space-x-3">
                     <Textarea
                       value={currentInput}
                       onChange={(e) => setCurrentInput(e.target.value)}
                       placeholder="Type your response here..."
-                      className="flex-1 min-h-[60px] border-slate-300 focus:border-purple-500 focus:ring-purple-500/20 bg-white"
+                      className="flex-1 min-h-[60px] border-slate-600 bg-slate-700 text-gray-300 placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500/20"
                       onKeyPress={(e) => {
                         if (e.key === "Enter" && !e.shiftKey) {
                           e.preventDefault();
@@ -311,10 +311,10 @@ setSecondsElapsed(0);
                         variant="outline"
                         size="sm"
                         onClick={() => setIsRecording(!isRecording)}
-                        className={`border-slate-300 transition-all duration-300 ${
+                        className={`border-slate-600 transition-all duration-300 ${
                           isRecording
-                            ? "bg-red-50 text-red-600 border-red-300 hover:bg-red-100"
-                            : "text-slate-600 hover:bg-slate-50"
+                            ? "bg-red-900/30 text-red-400 border-red-600 hover:bg-red-900/50"
+                            : "text-gray-400 bg-slate-700 hover:bg-slate-600"
                         }`}
                       >
                         {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
@@ -336,26 +336,26 @@ setSecondsElapsed(0);
 
           {/* Progress & Tips */}
           <div className="space-y-6">
-            <Card className="border-slate-200 shadow-lg bg-white/80 backdrop-blur-sm">
-              <CardHeader className="bg-gradient-to-r from-teal-50 to-emerald-50 border-b border-slate-100">
-                <CardTitle className="text-lg text-slate-900 flex items-center space-x-2">
-                  <Target className="w-5 h-5 text-teal-600" />
+            <Card className="border-white/10 shadow-lg bg-white/[0.02] backdrop-blur-xl">
+              <CardHeader className="bg-gradient-to-r from-slate-800 to-slate-700 border-b border-slate-700">
+                <CardTitle className="text-lg text-white flex items-center space-x-2">
+                  <Target className="w-5 h-5 text-teal-400" />
                   <span>Progress</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
                 <div className="space-y-4">
                   <div className="flex justify-between text-sm">
-                    <span className="text-slate-600">Questions Completed</span>
-                    <span className="text-slate-900 font-semibold">
+                    <span className="text-gray-400">Questions Completed</span>
+                    <span className="text-gray-200 font-semibold">
                       {currentQuestion + (messages.filter((m) => m.type === "user").length > 0 ? 1 : 0)} / {interviewQuestions.length}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-slate-600">Time Elapsed</span>
-                    <span className="text-slate-900 font-semibold">{formatTime(secondsElapsed)}</span>
+                    <span className="text-gray-400">Time Elapsed</span>
+                    <span className="text-gray-200 font-semibold">{formatTime(secondsElapsed)}</span>
                   </div>
-                  <div className="w-full bg-slate-200 rounded-full h-3">
+                  <div className="w-full bg-slate-700 rounded-full h-3">
                     <div
                       className="bg-gradient-to-r from-teal-500 to-emerald-500 h-3 rounded-full transition-all duration-500"
                       style={{
@@ -367,33 +367,33 @@ setSecondsElapsed(0);
               </CardContent>
             </Card>
 
-            <Card className="border-slate-200 shadow-lg bg-white/80 backdrop-blur-sm">
-              <CardHeader className="bg-gradient-to-r from-purple-50 to-coral-50 border-b border-slate-100">
-                <CardTitle className="text-lg text-slate-900 flex items-center space-x-2">
-                  <Zap className="w-5 h-5 text-purple-600" />
+            <Card className="border-white/10 shadow-lg bg-white/[0.02] backdrop-blur-xl">
+              <CardHeader className="bg-gradient-to-r from-slate-800 to-slate-700 border-b border-slate-700">
+                <CardTitle className="text-lg text-white flex items-center space-x-2">
+                  <Zap className="w-5 h-5 text-purple-400" />
                   <span>Interview Tips</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
-                <ul className="text-sm text-slate-700 space-y-3">
+                <ul className="text-sm text-gray-300 space-y-3">
                   <li className="flex items-start space-x-2">
-                    <div className="w-1.5 h-1.5 bg-purple-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <div className="w-1.5 h-1.5 bg-purple-400 rounded-full mt-2 flex-shrink-0"></div>
                     <span>Be specific with examples</span>
                   </li>
                   <li className="flex items-start space-x-2">
-                    <div className="w-1.5 h-1.5 bg-teal-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <div className="w-1.5 h-1.5 bg-teal-400 rounded-full mt-2 flex-shrink-0"></div>
                     <span>Use the STAR method (Situation, Task, Action, Result)</span>
                   </li>
                   <li className="flex items-start space-x-2">
-                    <div className="w-1.5 h-1.5 bg-coral-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <div className="w-1.5 h-1.5 bg-coral-400 rounded-full mt-2 flex-shrink-0"></div>
                     <span>Take your time to think</span>
                   </li>
                   <li className="flex items-start space-x-2">
-                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full mt-2 flex-shrink-0"></div>
                     <span>Ask clarifying questions if needed</span>
                   </li>
                   <li className="flex items-start space-x-2">
-                    <div className="w-1.5 h-1.5 bg-purple-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <div className="w-1.5 h-1.5 bg-purple-400 rounded-full mt-2 flex-shrink-0"></div>
                     <span>Show enthusiasm and confidence</span>
                   </li>
                 </ul>
@@ -401,9 +401,9 @@ setSecondsElapsed(0);
             </Card>
 
             {isComplete && (
-              <Card className="border-emerald-200 bg-gradient-to-r from-emerald-50 to-teal-50 shadow-lg">
+              <Card className="border-emerald-500/30 bg-emerald-900/20 shadow-lg">
                 <CardHeader>
-                  <CardTitle className="text-lg text-emerald-800 flex items-center space-x-2">
+                  <CardTitle className="text-lg text-emerald-300 flex items-center space-x-2">
                     <div className="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center">
                       <span className="text-white text-sm">✓</span>
                     </div>
@@ -411,17 +411,17 @@ setSecondsElapsed(0);
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-emerald-700 mb-4 leading-relaxed">
+                  <p className="text-sm text-emerald-200 mb-4 leading-relaxed">
                     Great job completing the interview! Your detailed feedback and performance analysis will be
                     available shortly.
                   </p>
                   <div className="grid grid-cols-2 gap-3 mb-4 text-xs">
-    <div className="bg-white/60 rounded-lg p-3 text-center">
-      <Clock className="w-4 h-4 mx-auto mb-1 text-emerald-600" />
-      <div className="font-semibold text-emerald-800">Duration</div>
-      <div className="text-emerald-600">{formatTime(secondsElapsed)}</div>
+    <div className="bg-slate-800/50 rounded-lg p-3 text-center">
+      <Clock className="w-4 h-4 mx-auto mb-1 text-emerald-400" />
+      <div className="font-semibold text-emerald-300">Duration</div>
+      <div className="text-emerald-400">{formatTime(secondsElapsed)}</div>
     </div>
-    <div className="bg-white/60 rounded-lg p-3 text-center">
+    <div className="bg-slate-800/50 rounded-lg p-3 text-center">
       {/* ...other stats... */}
     </div>
   </div>

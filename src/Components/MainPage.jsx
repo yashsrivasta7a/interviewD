@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button } from "./button";
 import { Card, CardContent } from "./card";
 import { ArrowRight, Users, Brain, Trophy, Zap, Shield, Award } from "lucide-react";
@@ -7,7 +7,8 @@ import Button1 from "./UI/Buttons1";
 import { useAuth0 } from "@auth0/auth0-react";
 import { motion } from "framer-motion";
 import PillNav from "./navbar";
-import logo from '/test1.png';
+// 
+
 
 // Small Tilt wrapper to give a glass-tilt effect on mouse move.
 // It uses direct DOM transforms for smoothness and keeps a subtle scale on hover.
@@ -65,6 +66,54 @@ export default function MainPage() {
   const { user, isAuthenticated, logout, loginWithRedirect } = useAuth0();
   const navigate = useNavigate();
   const canvasRef = useRef(null);
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  // Track scroll progress for gradient transition
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = Math.min(scrollTop / docHeight, 1);
+      setScrollProgress(progress);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Calculate gradient colors based on scroll
+  const getGradientColors = () => {
+    if (scrollProgress < 0.33) {
+      // Purple phase (0-33%)
+      const phase = scrollProgress / 0.33;
+      return {
+        color1: [120 - (20 * phase), 60 - (10 * phase), 200 - (20 * phase)], // Purple to Teal transition
+        color2: [100 - (0 * phase), 50, 180 - (0 * phase)],
+        color3: [80 - (20 * phase), 40 + (15 * phase), 160 + (30 * phase)]
+      };
+    } else if (scrollProgress < 0.66) {
+      // Teal phase (33-66%)
+      const phase = (scrollProgress - 0.33) / 0.33;
+      return {
+        color1: [100 - (50 * phase), 50 + (80 * phase), 180 - (30 * phase)], // Teal to Blue transition
+        color2: [100 - (30 * phase), 50 + (80 * phase), 180 - (10 * phase)],
+        color3: [60 - (20 * phase), 55 + (75 * phase), 190 - (15 * phase)]
+      };
+    } else {
+      // Blue phase (66-100%)
+      const phase = (scrollProgress - 0.66) / 0.34;
+      return {
+        color1: [50 - (10 * phase), 130 + (20 * phase), 150 + (50 * phase)], // Blue deepening
+        color2: [70 - (10 * phase), 130 + (20 * phase), 170 + (30 * phase)],
+        color3: [40 - (10 * phase), 130 + (20 * phase), 175 + (25 * phase)]
+      };
+    }
+  };
+
+  const gradientColors = getGradientColors();
+  const gradient1 = `rgba(${gradientColors.color1.join(',')}, 0.5)`;
+  const gradient2 = `rgba(${gradientColors.color2.join(',')}, 0.35)`;
+  const gradient3 = `rgba(${gradientColors.color3.join(',')}, 0.15)`;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -146,9 +195,9 @@ export default function MainPage() {
       {/* Background */}
       <div className="fixed inset-0 w-full min-h-screen overflow-hidden pointer-events-none -z-10 bg-black">
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 transition-all duration-700 ease-out"
           style={{
-            background: `radial-gradient(ellipse 80% 80% at 100% 100%, rgba(120,60,200,0.5) 0%, rgba(100,50,180,0.35) 25%, rgba(80,40,160,0.15) 50%, transparent 75%), radial-gradient(ellipse 80% 80% at 0% 100%, rgba(100,50,180,0.5) 0%, rgba(80,40,160,0.35) 25%, rgba(60,30,140,0.15) 50%, transparent 75%), radial-gradient(ellipse 70% 60% at 50% 100%, rgba(110,55,190,0.4) 0%, rgba(90,45,170,0.2) 40%, transparent 70%), #000000`,
+            background: `radial-gradient(ellipse 80% 80% at 100% 100%, ${gradient1} 0%, ${gradient2} 25%, ${gradient3} 50%, transparent 75%), radial-gradient(ellipse 80% 80% at 0% 100%, ${gradient1} 0%, ${gradient2} 25%, ${gradient3} 50%, transparent 75%), radial-gradient(ellipse 70% 60% at 50% 100%, ${gradient1} 0%, ${gradient2} 40%, transparent 70%), #000000`,
           }}
         />
         <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" style={{ mixBlendMode: 'screen' }} />
@@ -158,8 +207,8 @@ export default function MainPage() {
         {/* PillNav Header - Centered */}
         <div className="flex fixed left-1/2 transform -translate-x-1/2 justify-center mb-24 z-[1000]">
           <PillNav
-            logo={logo}
-            logoAlt="MockMate Logo"
+            // logo={logo}
+            // logoAlt="InterviewD Logo"
             items={[
               { label: 'Home', href: '/' },
               { label: 'Features', href: '#features' },
@@ -220,42 +269,71 @@ export default function MainPage() {
                 <Award className="w-4 h-4 text-teal-300" />
                 <span>Premium Features</span>
               </motion.div>
-              <h2 className="text-4xl font-bold text-white mb-4">Why Choose MockMate?</h2>
+              <h2 className="text-4xl font-bold text-white mb-4">Why Choose InterviewD?</h2>
               <p className="text-xl text-gray-300 max-w-2xl mx-auto">Our platform combines cutting-edge AI technology with proven interview techniques</p>
             </motion.div>
 
             <motion.div className="grid md:grid-cols-3 gap-8" variants={staggerContainer} initial="initial" whileInView="animate" viewport={{ once: true }}>
               {[
-                { icon: Brain, title: "AI-Powered Feedback", description: "Get instant, personalized feedback on your responses, body language, and communication skills.", gradient: "from-purple-500 to-purple-700" },
-                { icon: Users, title: "Industry-Specific", description: "Practice with questions tailored to your field, from tech and finance to healthcare and education.", gradient: "from-teal-500 to-teal-600" },
-                { icon: Trophy, title: "Track Progress", description: "Monitor your improvement over time with detailed analytics and performance metrics.", gradient: "from-emerald-500 to-emerald-600" },
+                { 
+                  icon: Brain, 
+                  title: "Resume & Role-Specific Questions", 
+                  description: "Get personalized interview questions based on your resume and target role. Experience real interview scenarios tailored to your background.", 
+                  gradient: "from-purple-500 to-purple-700" 
+                },
+                { 
+                  icon: Users, 
+                  title: "Adaptive Learning System", 
+                  description: "Our AI intelligently adjusts question difficulty based on your answers. The system adapts in real-time to match your skill level.", 
+                  gradient: "from-teal-500 to-teal-600" 
+                },
+                { 
+                  icon: Trophy, 
+                  title: "Comprehensive Analysis Report", 
+                  description: "Receive detailed performance analytics including ATS resume scoring, body language feedback, and actionable insights to improve.", 
+                  gradient: "from-emerald-500 to-emerald-600" 
+                },
               ].map((feature, index) => (
                 <motion.div key={index} variants={cardVariants} className="">
-                 <Tilt className="rounded-2xl">
-  <Card className={`group relative h-full 
+                 <Tilt className="rounded-2xl h-full">
+  <Card className={`group relative h-full min-h-[380px]
       bg-white/10 
       backdrop-blur-2xl 
       border border-white/20 
       shadow-[0_8px_30px_rgba(255,255,255,0.05)] 
       rounded-2xl 
       overflow-hidden 
-      transition-all duration-300 
-      hover:shadow-[0_8px_40px_rgba(160,90,255,0.15)] 
-      hover:border-purple-400/40`}>
+      transition-all duration-500 
+      hover:shadow-[0_8px_40px_rgba(160,90,255,0.25)] 
+      hover:border-purple-400/50
+      hover:scale-[1.02]
+      hover:-translate-y-2`}>
     
-    {/* Add reflective gradient overlay */}
-    <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-40 pointer-events-none"></div>
+    {/* Add reflective gradient overlay with animation */}
+    <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-40 pointer-events-none group-hover:opacity-60 transition-opacity duration-500"></div>
+    
+    {/* Animated glow effect on hover */}
+    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 bg-purple-500/20 rounded-full blur-3xl"></div>
+    </div>
 
-    <CardContent className="p-8 mt-5 text-center h-full flex flex-col relative z-10">
-      <motion.div className={`w-16 h-16 bg-gradient-to-br ${feature.gradient} rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:shadow-xl transition-all duration-300`} whileHover={{ scale: 1.08 }} transition={{ duration: 0.5 }}>
+    <CardContent className="p-8 mt-7 text-center h-full flex flex-col justify-between relative z-10">
+      <motion.div 
+        className={`w-16 h-16 bg-gradient-to-br ${feature.gradient} rounded-2xl flex items-center justify-center mx-auto shadow-lg group-hover:shadow-2xl transition-all duration-500 group-hover:rotate-6`} 
+        whileHover={{ scale: 1.15, rotate: 12 }} 
+        transition={{ type: "spring", stiffness: 300 }}
+      >
         <feature.icon className="w-8 h-8 text-white" />
       </motion.div>
-      <h3 className="text-xl font-semibold text-white mb-4">{feature.title}</h3>
-      <p className="text-gray-200 leading-relaxed flex-grow">{feature.description}</p>
+      
+      <div className="flex-grow flex flex-col mt-3 justify-center space-y-4">
+        <h3 className="text-xl font-semibold mt-3 text-white group-hover:text-purple-300 transition-colors duration-300">{feature.title}</h3>
+        <p className="text-gray-200 leading-relaxed group-hover:text-gray-100 transition-colors duration-300">{feature.description}</p>
+      </div>
     </CardContent>
 
-    {/* purple outline on hover */}
-    <div className="pointer-events-none absolute inset-0 rounded-2xl group-hover:ring-2 group-hover:ring-purple-500/40 group-hover:shadow-[0_0_30px_rgba(160,90,255,0.1)] transition-all duration-300"></div>
+    {/* Enhanced purple outline with glow on hover */}
+    <div className="pointer-events-none absolute inset-0 rounded-2xl group-hover:ring-2 group-hover:ring-purple-400/60 group-hover:shadow-[0_0_40px_rgba(160,90,255,0.3)] transition-all duration-500"></div>
   </Card>
 </Tilt>
 
@@ -309,7 +387,7 @@ export default function MainPage() {
           <div className="absolute inset-0 bg-gradient-to-r from-purple-900/30 via-purple-800/20 to-teal-900/30 rounded-xl -z-10" />
           <div className="container mx-auto text-center relative">
             <h2 className="text-4xl font-bold text-white mb-4">Ready to Ace Your Next Interview?</h2>
-            <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">Join thousands of successful candidates who used MockMate to land their dream jobs</p>
+            <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">Join thousands of successful candidates who used InterviewD to land their dream jobs</p>
             <Link to="/interview">
               <Button size="lg" className="bg-gradient-to-r from-purple-600 to-teal-500 text-white px-8 py-4 text-lg shadow-xl hover:shadow-2xl transition-all duration-300">Start Your Free Interview Now
                 <ArrowRight className="ml-2 w-5 h-5" />
@@ -319,7 +397,7 @@ export default function MainPage() {
         </section>
 
         <footer className="bg-gray-900/80 backdrop-blur-sm text-gray-300 py-6 px-4 text-center text-sm border-t border-white/5">
-          <div>© 2025 MockMate. All rights reserved.</div>
+          <div>© 2025 InterviewD. All rights reserved.</div>
         </footer>
       </div>
     </>

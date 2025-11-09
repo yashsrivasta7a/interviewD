@@ -560,13 +560,13 @@ Base your ratings on the feedback provided. Be objective and fair. Only respond 
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-teal-50 to-slate-50">
-     <header className="border-b border-slate-200/60 bg-white/90 backdrop-blur-md shadow-sm relative">
+    <div className="min-h-screen bg-black">
+     <header className="border-b border-slate-700 bg-gradient-to-r from-slate-900 to-slate-800 backdrop-blur-md shadow-lg relative">
   <div className="container mx-auto px-4 py-4 flex items-center justify-between relative">
     
     <Link
       to="/"
-      className="flex items-center space-x-2 text-slate-600 hover:text-purple-700 transition-colors group"
+      className="flex items-center space-x-2 text-slate-300 hover:text-white transition-colors group"
     >
       <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
       <span className="font-medium">Back to Home</span>
@@ -576,7 +576,7 @@ Base your ratings on the feedback provided. Be objective and fair. Only respond 
       <div className="w-6 h-6 bg-gradient-to-br from-purple-600 to-teal-600 rounded-lg flex items-center justify-center">
         <Brain className="w-4 h-4 text-white" />
       </div>
-      <h1 className="text-xl font-bold text-slate-900">Interview Results</h1>
+      <h1 className="text-xl font-bold text-white">Interview Results</h1>
     </div>
 
     <div className="w-[112px]"></div>
@@ -589,63 +589,63 @@ Base your ratings on the feedback provided. Be objective and fair. Only respond 
           <div className="w-20 h-20 bg-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
             <CheckCircle className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-4xl font-bold text-emerald-800 mb-2">Interview Complete!</h1>
-          <p className="text-xl text-emerald-700 mb-4">
+          <h1 className="text-4xl font-bold text-emerald-400 mb-2">Interview Complete!</h1>
+          <p className="text-xl text-emerald-300 mb-4">
             Excellent work! You've successfully completed your {selectedLevel} level {selectedRole} interview.
           </p>
-          <p className="text-lg text-slate-600">
+          <p className="text-lg text-gray-300">
             Here's your comprehensive feedback and performance analysis.
           </p>
         </div>
 
         <div className="grid md:grid-cols-4 gap-6 mb-8">
-          <Card className="border-emerald-200 bg-gradient-to-r from-emerald-50 to-teal-50">
+          <Card className="border-white/10 bg-white/[0.02] backdrop-blur-xl">
             <CardContent className="p-5 text-center mt-5">
-              <Clock className="w-8 h-8 mx-auto mb-2 text-emerald-600" />
-              <div className="text-2xl font-bold text-emerald-800">{formatTime(timer - timeLeft)}</div>
-              <div className="text-sm text-emerald-600">Duration</div>
+              <Clock className="w-8 h-8 mx-auto mb-2 text-emerald-400" />
+              <div className="text-2xl font-bold text-gray-200">{formatTime(timer - timeLeft)}</div>
+              <div className="text-sm text-gray-400">Duration</div>
             </CardContent>
           </Card>
           
-          <Card className="border-teal-200 bg-gradient-to-r from-teal-50 to-blue-50">
+          <Card className="border-white/10 bg-white/[0.02] backdrop-blur-xl">
             <CardContent className="p-5 mt-5 text-center">
-              <Users className="w-8 h-8 mx-auto mb-2 text-teal-600" />
-              <div className="text-2xl font-bold text-teal-800">{userResponses.length}</div>
-              <div className="text-sm text-teal-600">Questions Answered</div>
+              <Users className="w-8 h-8 mx-auto mb-2 text-teal-400" />
+              <div className="text-2xl font-bold text-gray-200">{userResponses.length}</div>
+              <div className="text-sm text-gray-400">Questions Answered</div>
             </CardContent>
           </Card>
           
-          <Card className="border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50">
+          <Card className="border-white/10 bg-white/[0.02] backdrop-blur-xl">
             <CardContent className="p-5 mt-5 text-center">
-              <Trophy className="w-8 h-8 mx-auto mb-2 text-purple-600" />
-              <div className="text-2xl font-bold text-purple-800">{Math.round((userResponses.length / interviewQuestions.length) * 100)}%</div>
-              <div className="text-sm text-purple-600">Completion Rate</div>
+              <Trophy className="w-8 h-8 mx-auto mb-2 text-purple-400" />
+              <div className="text-2xl font-bold text-gray-200">{Math.round((userResponses.length / interviewQuestions.length) * 100)}%</div>
+              <div className="text-sm text-gray-400">Completion Rate</div>
             </CardContent>
           </Card>
           
-          <Card className="border-orange-200 bg-gradient-to-r from-orange-50 to-red-50">
+          <Card className="border-white/10 bg-white/[0.02] backdrop-blur-xl">
             <CardContent className="p-5 mt-5 text-center">
-              <Camera className="w-8 h-8 mx-auto mb-2 text-orange-600" />
-              <div className="text-2xl font-bold text-orange-800">{backgroundAnalyses.length}</div>
-              <div className="text-sm text-orange-600">Photo Captures</div>
+              <Camera className="w-8 h-8 mx-auto mb-2 text-orange-400" />
+              <div className="text-2xl font-bold text-gray-200">{backgroundAnalyses.length}</div>
+              <div className="text-sm text-gray-400">Photo Captures</div>
             </CardContent>
           </Card>
         </div>
 
         {/* Performance Charts Section */}
         {!isLoadingMetrics && performanceMetrics && (
-          <Card className="border-slate-200 shadow-xl bg-white/90 backdrop-blur-sm mb-8">
-            <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b border-slate-200">
-              <CardTitle className="text-2xl font-bold text-slate-900 flex items-center space-x-2">
-                <TrendingUp className="w-6 h-6 text-purple-600" />
+          <Card className="border-white/10 shadow-xl bg-white/[0.02] backdrop-blur-xl mb-8">
+            <CardHeader className="bg-gradient-to-r from-slate-800 to-slate-700 border-b border-slate-700">
+              <CardTitle className="text-2xl font-bold text-white flex items-center space-x-2">
+                <TrendingUp className="w-6 h-6 text-purple-400" />
                 <span>Overall Performance Assessment</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="p-8 mt-5">
               <div className="grid md:grid-cols-2 gap-8 mb-8">
                 {/* Radar Chart - Skills Assessment */}
-                <div className="bg-slate-50 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold text-slate-900 mb-4 text-center">Skills Assessment</h3>
+                <div className="bg-slate-800/50 border border-white/10 rounded-lg p-6">
+                  <h3 className="text-lg font-semibold text-gray-200 mb-4 text-center">Skills Assessment</h3>
                   <Radar
                     data={{
                       labels: ['Technical', 'Communication', 'Problem Solving', 'Confidence', 'Clarity', 'Relevance'],
@@ -693,8 +693,8 @@ Base your ratings on the feedback provided. Be objective and fair. Only respond 
                 </div>
 
                 {/* Doughnut Chart - Overall Score */}
-                <div className="bg-slate-50 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold text-slate-900 mb-4 text-center">Overall Performance Score</h3>
+                <div className="bg-slate-800/50 border border-white/10 rounded-lg p-6">
+                  <h3 className="text-lg font-semibold text-gray-200 mb-4 text-center">Overall Performance Score</h3>
                   <div className="flex flex-col items-center">
                     <div className="w-64 h-64">
                       <Doughnut
@@ -733,16 +733,16 @@ Base your ratings on the feedback provided. Be objective and fair. Only respond 
                       />
                     </div>
                     <div className="mt-4 text-center">
-                      <div className="text-4xl font-bold text-emerald-600">{performanceMetrics.overallScore}%</div>
-                      <div className="text-sm text-slate-600">Overall Score</div>
+                      <div className="text-4xl font-bold text-emerald-400">{performanceMetrics.overallScore}%</div>
+                      <div className="text-sm text-gray-400">Overall Score</div>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Bar Chart - Detailed Metrics */}
-              <div className="bg-slate-50 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-slate-900 mb-4 text-center">Detailed Performance Breakdown</h3>
+              <div className="bg-slate-800/50 border border-white/10 rounded-lg p-6">
+                <h3 className="text-lg font-semibold text-gray-200 mb-4 text-center">Detailed Performance Breakdown</h3>
                 <Bar
                   data={{
                     labels: ['Technical Skills', 'Communication', 'Problem Solving', 'Confidence', 'Clarity', 'Relevance', 'Body Language'],
@@ -811,31 +811,31 @@ Base your ratings on the feedback provided. Be objective and fair. Only respond 
 
               {/* Strengths and Improvements */}
               <div className="grid md:grid-cols-2 gap-6 mt-8">
-                <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold text-emerald-900 mb-4 flex items-center">
+                <div className="bg-emerald-900/20 border border-emerald-500/30 rounded-lg p-6">
+                  <h3 className="text-lg font-semibold text-emerald-300 mb-4 flex items-center">
                     <Trophy className="w-5 h-5 mr-2" />
                     Key Strengths
                   </h3>
                   <ul className="space-y-2">
                     {performanceMetrics.strengths.map((strength, index) => (
                       <li key={index} className="flex items-start">
-                        <CheckCircle className="w-5 h-5 text-emerald-600 mr-2 mt-0.5 flex-shrink-0" />
-                        <span className="text-slate-700">{strength}</span>
+                        <CheckCircle className="w-5 h-5 text-emerald-400 mr-2 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-300">{strength}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold text-blue-900 mb-4 flex items-center">
+                <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-6">
+                  <h3 className="text-lg font-semibold text-blue-300 mb-4 flex items-center">
                     <TrendingUp className="w-5 h-5 mr-2" />
                     Areas for Improvement
                   </h3>
                   <ul className="space-y-2">
                     {performanceMetrics.improvements.map((improvement, index) => (
                       <li key={index} className="flex items-start">
-                        <Star className="w-5 h-5 text-blue-600 mr-2 mt-0.5 flex-shrink-0" />
-                        <span className="text-slate-700">{improvement}</span>
+                        <Star className="w-5 h-5 text-blue-400 mr-2 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-300">{improvement}</span>
                       </li>
                     ))}
                   </ul>
@@ -845,24 +845,24 @@ Base your ratings on the feedback provided. Be objective and fair. Only respond 
           </Card>
         )}
 
-        <Card className="border-slate-200 shadow-xl bg-white/90 backdrop-blur-sm mb-8">
-          <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-slate-200">
-            <CardTitle className="text-2xl font-bold text-slate-900 flex items-center space-x-2">
-              <FileText className="w-6 h-6 text-blue-600" />
+        <Card className="border-white/10 shadow-xl bg-white/[0.02] backdrop-blur-xl mb-8">
+          <CardHeader className="bg-gradient-to-r from-slate-800 to-slate-700 border-b border-slate-700">
+            <CardTitle className="text-2xl font-bold text-white flex items-center space-x-2">
+              <FileText className="w-6 h-6 text-blue-400" />
               <span>Interview Summary & Assessment</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-8 mt-5">
             {isLoadingSummary ? (
               <div className="flex items-center justify-center space-x-3 py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                <p className="text-slate-600 text-lg">Generating your comprehensive interview summary...</p>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
+                <p className="text-gray-300 text-lg">Generating your comprehensive interview summary...</p>
               </div>
             ) : (
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6">
+              <div className="bg-slate-800/50 border border-blue-500/30 rounded-lg p-6">
                 <div className="prose prose-slate max-w-none">
                   <div 
-                    className="text-slate-800 leading-relaxed text-lg whitespace-pre-line"
+                    className="text-gray-300 leading-relaxed text-lg whitespace-pre-line"
                     dangerouslySetInnerHTML={{ __html: interviewSummary }}
                   />
                 </div>
@@ -873,27 +873,27 @@ Base your ratings on the feedback provided. Be objective and fair. Only respond 
 
         {/* NEW: Photo Analysis Summary Section */}
         {backgroundAnalyses.length > 0 && (
-          <Card className="border-slate-200 shadow-xl bg-white/90 backdrop-blur-sm mb-8">
-            <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 border-b border-slate-200">
-              <CardTitle className="text-2xl font-bold text-slate-900 flex items-center space-x-2">
-                <Camera className="w-6 h-6 text-orange-600" />
+          <Card className="border-white/10 shadow-xl bg-white/[0.02] backdrop-blur-xl mb-8">
+            <CardHeader className="bg-gradient-to-r from-slate-800 to-slate-700 border-b border-slate-700">
+              <CardTitle className="text-2xl font-bold text-white flex items-center space-x-2">
+                <Camera className="w-6 h-6 text-orange-400" />
                 <span>Visual Presentation & Body Language Analysis</span>
               </CardTitle>
-              <p className="text-sm text-slate-600 mt-2">
+              <p className="text-sm text-gray-400 mt-2">
                 Based on {backgroundAnalyses.filter(a => !a.error).length} photo captures throughout your interview
               </p>
             </CardHeader>
             <CardContent className="p-8 mt-5">
               {isLoadingPhotoSummary ? (
                 <div className="flex items-center justify-center space-x-3 py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
-                  <p className="text-slate-600 text-lg">Analyzing your visual presentation patterns...</p>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-400"></div>
+                  <p className="text-gray-300 text-lg">Analyzing your visual presentation patterns...</p>
                 </div>
               ) : (
-                <div className="bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-lg p-6">
+                <div className="bg-slate-800/50 border border-orange-500/30 rounded-lg p-6">
                   <div className="prose prose-slate max-w-none">
                     <div 
-                      className="text-slate-800 leading-relaxed text-lg whitespace-pre-line"
+                      className="text-gray-300 leading-relaxed text-lg whitespace-pre-line"
                       dangerouslySetInnerHTML={{ __html: photoAnalysisSummary }}
                     />
                   </div>
@@ -903,11 +903,11 @@ Base your ratings on the feedback provided. Be objective and fair. Only respond 
           </Card>
         )}
 
-        <Card className="border-slate-200 shadow-xl bg-white/80 backdrop-blur-sm">
-          <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-slate-200">
+        <Card className="border-white/10 shadow-xl bg-white/[0.02] backdrop-blur-xl">
+          <CardHeader className="bg-gradient-to-r from-slate-800 to-slate-700 border-b border-slate-700">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-2xl font-bold text-slate-900 flex items-center space-x-2">
-                <Brain className="w-6 h-6 text-emerald-600" />
+              <CardTitle className="text-2xl font-bold text-white flex items-center space-x-2">
+                <Brain className="w-6 h-6 text-emerald-400" />
                 <span>Detailed Interview Feedback</span>
               </CardTitle>
               <div className="flex items-center gap-2">
@@ -915,7 +915,7 @@ Base your ratings on the feedback provided. Be objective and fair. Only respond 
                   onClick={() => setViewMode(viewMode === "formatted" ? "json" : "formatted")}
                   variant="outline"
                   size="sm"
-                  className="border-slate-300"
+                  className="border-slate-600 bg-slate-700 text-gray-300 hover:bg-slate-600"
                 >
                   <Code className="w-4 h-4 mr-2" />
                   {viewMode === "formatted" ? "View JSON" : "View Formatted"}
@@ -926,7 +926,7 @@ Base your ratings on the feedback provided. Be objective and fair. Only respond 
                       onClick={copyJSONToClipboard}
                       variant="outline"
                       size="sm"
-                      className="border-slate-300"
+                      className="border-slate-600 bg-slate-700 text-gray-300 hover:bg-slate-600"
                     >
                       {copied ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
                       {copied ? "Copied!" : "Copy JSON"}
@@ -935,7 +935,7 @@ Base your ratings on the feedback provided. Be objective and fair. Only respond 
                       onClick={downloadJSON}
                       variant="outline"
                       size="sm"
-                      className="border-slate-300"
+                      className="border-slate-600 bg-slate-700 text-gray-300 hover:bg-slate-600"
                     >
                       <Download className="w-4 h-4 mr-2" />
                       Download JSON
@@ -955,54 +955,54 @@ Base your ratings on the feedback provided. Be objective and fair. Only respond 
             ) : (
               <div className="space-y-8">
               {aiFeedback.map((feedback) => (
-                <div key={feedback.id} className="border border-slate-200 rounded-xl p-6 bg-slate-50/50">
+                <div key={feedback.id} className="border border-white/10 rounded-xl p-6 bg-slate-800/50">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
                       <div className="flex items-center space-x-2 mb-2">
                         <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-teal-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
                           {feedback.questionNumber}
                         </div>
-                        <h3 className="text-lg font-bold text-slate-900">
+                        <h3 className="text-lg font-bold text-gray-200">
                           Question {feedback.questionNumber}
                         </h3>
                         {feedback.isFinal && (
-                          <div className="bg-gradient-to-r from-emerald-100 to-teal-100 px-3 py-1 rounded-full">
-                            <span className="text-sm font-medium text-emerald-700">⭐ Final Assessment</span>
+                          <div className="bg-emerald-900/30 border border-emerald-500/50 px-3 py-1 rounded-full">
+                            <span className="text-sm font-medium text-emerald-300">⭐ Final Assessment</span>
                           </div>
                         )}
                       </div>
-                      <p className="text-slate-700 italic text-lg mb-4">"{feedback.question}"</p>
+                      <p className="text-gray-300 italic text-lg mb-4">"{feedback.question}"</p>
                     </div>
                   </div>
 
                   <div className="mb-6">
-                    <h4 className="font-bold text-slate-900 mb-3 flex items-center space-x-2">
+                    <h4 className="font-bold text-gray-200 mb-3 flex items-center space-x-2">
                       <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
                       <span>Your Response</span>
                     </h4>
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                      <p className="text-slate-800 leading-relaxed">{feedback.userAnswer}</p>
+                    <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
+                      <p className="text-gray-300 leading-relaxed">{feedback.userAnswer}</p>
                     </div>
                   </div>
 
                   <div className="mb-6">
-                    <h4 className="font-bold text-slate-900 mb-3 flex items-center space-x-2">
+                    <h4 className="font-bold text-gray-200 mb-3 flex items-center space-x-2">
                       <div className="w-4 h-4 bg-emerald-500 rounded-full"></div>
                       <span>AI Feedback</span>
                     </h4>
-                    <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
-                      <p className="text-slate-800 leading-relaxed">{feedback.feedback}</p>
+                    <div className="bg-emerald-900/20 border border-emerald-500/30 rounded-lg p-4">
+                      <p className="text-gray-300 leading-relaxed">{feedback.feedback}</p>
                     </div>
                   </div>
 
                   {feedback.cameraFeedback && (
                     <div>
-                      <h4 className="font-semibold text-slate-900 mb-3 flex items-center space-x-2">
+                      <h4 className="font-semibold text-gray-200 mb-3 flex items-center space-x-2">
                         <div className="w-4 h-4 bg-orange-500 rounded-full"></div>
                         <span>📸 Body Language & Posture Analysis</span>
                       </h4>
-                      <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                        <p className="text-slate-800 leading-relaxed">{feedback.cameraFeedback}</p>
+                      <div className="bg-orange-900/20 border border-orange-500/30 rounded-lg p-4">
+                        <p className="text-gray-300 leading-relaxed">{feedback.cameraFeedback}</p>
                       </div>
                     </div>
                   )}
@@ -1043,7 +1043,7 @@ Base your ratings on the feedback provided. Be objective and fair. Only respond 
                <Link to="/">
                 <Button
                   variant="outline"
-                  className="border-slate-300 text-slate-700 hover:bg-slate-50 px-8 py-3 shadow-sm hover:shadow-md transition-all duration-300"
+                  className="border-slate-600 text-gray-300 hover:bg-slate-700 px-8 py-3 shadow-sm hover:shadow-md transition-all duration-300"
                   size="lg"
                 >
                   <ArrowLeft className="w-5 h-5 mr-2" />

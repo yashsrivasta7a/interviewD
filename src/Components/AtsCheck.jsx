@@ -272,10 +272,10 @@ const AtsCheck = () => {
             </div>
             <h2 className="text-xl font-semibold text-white mb-2">No Resume Data</h2>
             <p className="text-sm text-gray-400 mb-6">Upload and parse your resume to get started with ATS analysis.</p>
-            <Link to="/ResumeParser">
+            <Link to="/">
               <Button className="bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-all duration-200">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Go to Resume Parser
+                Back to Home
               </Button>
             </Link>
           </CardContent>
@@ -298,9 +298,9 @@ const AtsCheck = () => {
 
       <header className="border-b border-white/5 bg-black/40 backdrop-blur-xl sticky top-0 z-50">
         <div className="mt-3 container mx-auto px-6 py-5 flex items-center justify-between max-w-7xl">
-          <Link to="/ResumeParser" className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors group">
+          <Link to="/" className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors group">
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-200" />
-            <span className="text-sm font-medium">Back</span>
+            <span className="text-sm font-medium">Back to Home</span>
           </Link>
           
           <div className="flex items-center gap-3">
@@ -636,10 +636,10 @@ const AtsCheck = () => {
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <Link to="/ResumeParser">
+          <Link to="/">
             <Button className="bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-all duration-200 px-6 py-2.5 text-sm">
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Analyze Another Resume
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Home
             </Button>
           </Link>
           <Button onClick={downloadReport} className="bg-purple-600/20 border border-purple-500/30 text-purple-300 hover:bg-purple-600/30 hover:border-purple-500/50 transition-all duration-200 px-6 py-2.5 text-sm">
