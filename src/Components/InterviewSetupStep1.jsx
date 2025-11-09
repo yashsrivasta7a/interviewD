@@ -43,22 +43,22 @@ export default function InterviewSetupStep1({
   }, [setShowRoleDropdown]);
 
   return (
-    <Card className="border-slate-200 shadow-xl bg-white/80 backdrop-blur-sm">
-      <CardHeader className="text-center bg-gradient-to-r from-purple-50 to-teal-50 border-b border-slate-100">
+    <Card className="border-slate-700 shadow-xl bg-gradient-to-br from-slate-800 to-slate-900 backdrop-blur-sm">
+      <CardHeader className="text-center bg-gradient-to-r from-slate-800 to-slate-700 border-b border-slate-600">
         <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
           <Target className="w-8 h-8 text-white" />
         </div>
-        <CardTitle className="text-2xl text-slate-900">
+        <CardTitle className="text-2xl text-white">
           Setup Your AI Mock Interview
         </CardTitle>
-        <p className="text-slate-600">
+        <p className="text-slate-300">
           Choose your role and experience level
         </p>
       </CardHeader>
 
       <CardContent className="space-y-6 p-8">
         <div className="mt-5">
-          <label className="block text-sm font-medium text-slate-900 mb-3">
+          <label className="block text-sm font-medium text-white mb-3">
             What role are you interviewing for?
           </label>
           <div className="relative" ref={roleDropdownRef}>
@@ -72,10 +72,10 @@ export default function InterviewSetupStep1({
               }}
               onFocus={() => setShowRoleDropdown(true)}
               placeholder="Search for a role..."
-              className="w-full p-3 rounded border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-400"
+              className="w-full p-3 rounded-lg border border-slate-600 bg-slate-700 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
             {showRoleDropdown && (roleSearchTerm || !selectedRole) && (
-              <div className="absolute z-50 w-full mt-1 bg-white border border-slate-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+              <div className="absolute z-50 w-full mt-1 bg-slate-800 border border-slate-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                 {filteredRoles.length > 0 ? (
                   filteredRoles.map((role, index) => (
                     <div
@@ -85,13 +85,13 @@ export default function InterviewSetupStep1({
                         setRoleSearchTerm("");
                         setShowRoleDropdown(false);
                       }}
-                      className="px-4 py-3 hover:bg-purple-50 cursor-pointer text-slate-900 border-b border-slate-100 last:border-b-0"
+                      className="px-4 py-3 hover:bg-slate-700 cursor-pointer text-white border-b border-slate-700 last:border-b-0 transition-colors"
                     >
                       {role}
                     </div>
                   ))
                 ) : (
-                  <div className="px-4 py-3 text-slate-500 italic">
+                  <div className="px-4 py-3 text-slate-400 italic">
                     No roles found matching "{roleSearchTerm}"
                   </div>
                 )}
@@ -99,7 +99,7 @@ export default function InterviewSetupStep1({
             )}
             {selectedRole && (
               <div className="mt-2 flex items-center space-x-2">
-                <div className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
+                <div className="px-3 py-1 bg-purple-600 text-white rounded-full text-sm font-medium">
                   Selected: {selectedRole}
                 </div>
                 <button
@@ -107,7 +107,7 @@ export default function InterviewSetupStep1({
                     setSelectedRole("");
                     setRoleSearchTerm("");
                   }}
-                  className="text-slate-500 hover:text-red-500 text-sm"
+                  className="text-slate-400 hover:text-red-400 text-sm transition-colors"
                 >
                   Clear
                 </button>
@@ -117,7 +117,7 @@ export default function InterviewSetupStep1({
         </div>
 
         <div className="mt-5">
-          <label className="block text-sm font-medium text-slate-900 mb-3">
+          <label className="block text-sm font-medium text-white mb-3">
             What is your experience level?
           </label>
           <div className="grid grid-cols-2 gap-4">
@@ -128,8 +128,8 @@ export default function InterviewSetupStep1({
                   onClick={() => setSelectedLevel(level)}
                   className={`p-4 rounded-lg border-2 transition-all duration-200 ${
                     selectedLevel === level
-                      ? "border-purple-600 bg-purple-50 text-purple-700"
-                      : "border-slate-200 hover:border-purple-300 hover:bg-purple-50/50"
+                      ? "border-purple-500 bg-purple-600 text-white"
+                      : "border-slate-600 bg-slate-700 text-slate-300 hover:border-purple-500 hover:bg-slate-600"
                   }`}
                 >
                   {level}
@@ -143,18 +143,18 @@ export default function InterviewSetupStep1({
           <ResumeParser onAnalysisComplete={onAnalysisComplete} />
         </div>
 
-        <div className="mt-6 flex items-center space-x-2 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
+        <div className="mt-6 flex items-center space-x-2 p-4 bg-gradient-to-r from-slate-700 to-slate-600 rounded-lg border border-slate-600">
           <input
             type="checkbox"
             id="includeCoding"
             checked={includeCoding}
             onChange={(e) => setIncludeCoding(e.target.checked)}
-            className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
+            className="w-4 h-4 text-purple-600 rounded border-slate-500 focus:ring-purple-500 bg-slate-700"
           />
-          <label htmlFor="includeCoding" className="text-sm font-medium text-slate-900">
+          <label htmlFor="includeCoding" className="text-sm font-medium text-white">
             Include coding questions in the interview
           </label>
-          <div className="ml-2 text-xs text-slate-500">
+          <div className="ml-2 text-xs text-slate-400">
             (Will test practical coding skills during the interview)
           </div>
         </div>
@@ -171,7 +171,7 @@ export default function InterviewSetupStep1({
         
         {(!selectedRole || !selectedLevel || !resumeUploaded) && (
           <div className="mt-2 text-center">
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-slate-400">
               {!selectedRole && "Please select a role. "}
               {!selectedLevel && "Please select an experience level. "}
               {!resumeUploaded && "Please upload and parse your resume. "}
