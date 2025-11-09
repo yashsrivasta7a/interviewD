@@ -10,9 +10,9 @@ createRoot(document.getElementById('root')).render(
       domain="dev-0hgbe7foh74e6lch.us.auth0.com"
       clientId="JWjbUGmTuIV1br2NkLsaeGTQroZFgoiY"
       authorizationParams={{
-        redirect_uri: 'https://interviewd.vercel.app/',
-        audience: `https://interview-d.us.auth0.com/api/v2/`,
-        scope: "openid profile email offline_access"
+        redirect_uri: window.location.origin,
+        // audience: `https://interview-d.us.auth0.com/api/v2/`,
+        // scope: "openid profile email offline_access"
       }}
       useRefreshTokens={true}
       cacheLocation="localstorage"
