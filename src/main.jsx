@@ -7,10 +7,10 @@ import App from './App.jsx'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Auth0Provider
-      domain="interview-d.us.auth0.com"
-      clientId="NdOxf91aOpxDslpD6a0TJJer19S4elaU"
+      domain="dev-0hgbe7foh74e6lch.us.auth0.com"
+      clientId="JWjbUGmTuIV1br2NkLsaeGTQroZFgoiY"
       authorizationParams={{
-        redirect_uri: window.location.origin,
+        redirect_uri: 'https://interviewd.vercel.app/',
         audience: `https://interview-d.us.auth0.com/api/v2/`,
         scope: "openid profile email offline_access"
       }}
