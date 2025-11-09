@@ -1063,14 +1063,6 @@ Dont give very long responses.`;
               <ArrowLeft className="w-5 h-5 mr-2" />
               Exit
             </Button>
-            <div className="flex items-center space-x-2">
-              <Badge className="bg-blue-600 text-white border-0">
-                {selectedRole}
-              </Badge>
-              <Badge className="bg-purple-600 text-white border-0">
-                {selectedLevel}
-              </Badge>
-            </div>
           </div>
           
           <div className="flex items-center gap-6">
