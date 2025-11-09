@@ -7,7 +7,7 @@ import Button1 from "./UI/Buttons1";
 import { useAuth0 } from "@auth0/auth0-react";
 import { motion } from "framer-motion";
 import PillNav from "./navbar";
-import logo from '/test1.png';
+import logo from '/test1.svg';
 
 // Small Tilt wrapper to give a glass-tilt effect on mouse move.
 // It uses direct DOM transforms for smoothness and keeps a subtle scale on hover.
