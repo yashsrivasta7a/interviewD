@@ -43,15 +43,15 @@ export default function InterviewSetupStep1({
   }, [setShowRoleDropdown]);
 
   return (
-    <Card className="border border-slate-700/40 bg-[#0D1117] shadow-[0_0_25px_-5px_rgba(0,0,0,0.5)] rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-[0_0_35px_-5px_rgba(59,130,246,0.3)]">
-      <CardHeader className="text-center border-b border-slate-800 py-8">
-        <div className="w-20 h-20 bg-slate-900 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-inner">
+    <Card className="border border-zinc-800 bg-zinc-950 shadow-[0_0_25px_-5px_rgba(0,0,0,0.8)] rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-[0_0_35px_-5px_rgba(59,130,246,0.4)]">
+      <CardHeader className="text-center border-b border-zinc-900 py-8">
+        <div className="w-20 h-20 bg-zinc-900 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-inner">
           <Target className="w-10 h-10 text-blue-500" />
         </div>
-        <CardTitle className="text-3xl font-bold text-white tracking-tight">
+        <CardTitle className="text-3xl font-bold text-zinc-50 tracking-tight">
           Setup Your AI Mock Interview
         </CardTitle>
-        <p className="text-slate-400 text-base mt-2">
+        <p className="text-zinc-500 text-base mt-2">
           Choose your role and experience level
         </p>
       </CardHeader>
@@ -59,7 +59,7 @@ export default function InterviewSetupStep1({
       <CardContent className="space-y-10 p-10">
         {/* Step 1: Role Selection */}
         <div>
-          <label className="block text-sm font-semibold text-slate-200 mb-3 flex items-center">
+          <label className="block text-sm font-semibold text-zinc-200 mb-3 flex items-center">
             <span className="bg-blue-600 text-white w-7 h-7 rounded-full flex items-center justify-center text-sm mr-3">
               1
             </span>
@@ -77,11 +77,11 @@ export default function InterviewSetupStep1({
               }}
               onFocus={() => setShowRoleDropdown(true)}
               placeholder="Search for a role..."
-              className="w-full p-4 rounded-lg border border-slate-700 bg-slate-900 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              className="w-full p-4 rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             />
 
             {showRoleDropdown && (roleSearchTerm || !selectedRole) && (
-              <div className="absolute z-50 w-full mt-2 bg-slate-900 border border-slate-700 rounded-lg shadow-lg max-h-56 overflow-y-auto">
+              <div className="absolute z-50 w-full mt-2 bg-zinc-900 border border-zinc-800 rounded-lg shadow-lg max-h-56 overflow-y-auto">
                 {filteredRoles.length > 0 ? (
                   filteredRoles.map((role, index) => (
                     <div
@@ -91,13 +91,13 @@ export default function InterviewSetupStep1({
                         setRoleSearchTerm("");
                         setShowRoleDropdown(false);
                       }}
-                      className="px-5 py-3 hover:bg-slate-800 cursor-pointer text-slate-200 border-b border-slate-800 last:border-b-0 transition-colors"
+                      className="px-5 py-3 hover:bg-zinc-800 cursor-pointer text-zinc-200 border-b border-zinc-800 last:border-b-0 transition-colors"
                     >
                       {role}
                     </div>
                   ))
                 ) : (
-                  <div className="px-5 py-4 text-slate-400 italic text-center">
+                  <div className="px-5 py-4 text-zinc-500 italic text-center">
                     No roles found matching "{roleSearchTerm}"
                   </div>
                 )}
@@ -106,7 +106,7 @@ export default function InterviewSetupStep1({
 
             {selectedRole && (
               <div className="mt-3 flex items-center space-x-3">
-                <div className="px-4 py-2 bg-slate-800 text-blue-400 rounded-full text-sm font-medium">
+                <div className="px-4 py-2 bg-zinc-900 text-blue-400 rounded-full text-sm font-medium">
                   Selected: {selectedRole}
                 </div>
                 <button
@@ -114,7 +114,7 @@ export default function InterviewSetupStep1({
                     setSelectedRole("");
                     setRoleSearchTerm("");
                   }}
-                  className="text-slate-400 hover:text-red-400 text-sm font-medium transition-colors"
+                  className="text-zinc-500 hover:text-red-400 text-sm font-medium transition-colors"
                 >
                   Clear
                 </button>
@@ -125,7 +125,7 @@ export default function InterviewSetupStep1({
 
         {/* Step 2: Experience Level */}
         <div>
-          <label className="block text-sm font-semibold text-slate-200 mb-3 flex items-center">
+          <label className="block text-sm font-semibold text-zinc-200 mb-3 flex items-center">
             <span className="bg-blue-600 text-white w-7 h-7 rounded-full flex items-center justify-center text-sm mr-3">
               2
             </span>
@@ -140,8 +140,8 @@ export default function InterviewSetupStep1({
                   onClick={() => setSelectedLevel(level)}
                   className={`p-5 rounded-xl border text-sm font-semibold transition-all duration-200 ${
                     selectedLevel === level
-                      ? "border-blue-500 bg-slate-800 text-white shadow-md"
-                      : "border-slate-700 bg-slate-900 text-slate-400 hover:border-blue-500 hover:text-white hover:bg-slate-800"
+                      ? "border-blue-500 bg-zinc-900 text-zinc-50 shadow-md"
+                      : "border-zinc-800 bg-zinc-950 text-zinc-500 hover:border-blue-500 hover:text-zinc-200 hover:bg-zinc-900"
                   }`}
                 >
                   {level}
@@ -153,7 +153,7 @@ export default function InterviewSetupStep1({
 
         {/* Step 3: Resume Upload */}
         <div>
-          <label className="block text-sm font-semibold text-slate-200 mb-3 flex items-center">
+          <label className="block text-sm font-semibold text-zinc-200 mb-3 flex items-center">
             <span className="bg-blue-600 text-white w-7 h-7 rounded-full flex items-center justify-center text-sm mr-3">
               3
             </span>
@@ -165,7 +165,7 @@ export default function InterviewSetupStep1({
         </div>
 
         {/* Continue Button */}
-        <div className="flex justify-end mt-10 pt-6 border-t border-slate-800">
+        <div className="flex justify-end mt-10 pt-6 border-t border-zinc-900">
           <Button
             onClick={onNext}
             disabled={!selectedRole || !selectedLevel || !resumeUploaded}
@@ -177,8 +177,8 @@ export default function InterviewSetupStep1({
 
         {/* Validation Message */}
         {(!selectedRole || !selectedLevel || !resumeUploaded) && (
-          <div className="mt-2 bg-slate-900 border border-slate-800 rounded-lg p-4">
-            <p className="text-sm text-slate-400 text-center font-medium">
+          <div className="mt-2 bg-zinc-950 border border-zinc-900 rounded-lg p-4">
+            <p className="text-sm text-zinc-500 text-center font-medium">
               {!selectedRole && "Please select a role. "}
               {!selectedLevel && "Please select an experience level. "}
               {!resumeUploaded && "Please upload and parse your resume. "}
