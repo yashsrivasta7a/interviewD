@@ -2,7 +2,7 @@ import { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { generateSpeech } from './azureOpenAI.js';
+import { generateSpeech } from './azureOpenAi.js';
 
 const AiInterviewer = forwardRef(({ currentQuestion }, ref) => {
   const containerRef = useRef(null);
