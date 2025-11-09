@@ -112,9 +112,46 @@ const AiInterviewer = forwardRef(({ currentQuestion }, ref) => {
     }, 16);
   };
 
+  // Stop all audio and cleanup
+  const stopAudio = () => {
+    console.log('Stopping all audio and cleanup');
+    
+    // Stop current audio
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current = null;
+    }
+    
+    // Close audio context
+    if (audioContextRef.current) {
+      audioContextRef.current.close();
+      audioContextRef.current = null;
+    }
+    
+    analyserRef.current = null;
+    isPlayingRef.current = false;
+    
+    // Reset morph targets
+    if (morphTargetsRef.current) {
+      const influences = morphTargetsRef.current.morphTargetInfluences;
+      const morphTargets = {
+        jawOpen: morphTargetsRef.current.morphTargetDictionary['mouthOpen'] || 
+                 morphTargetsRef.current.morphTargetDictionary['jawOpen'],
+        mouthOpen: morphTargetsRef.current.morphTargetDictionary['mouthOpen'],
+      };
+      
+      Object.keys(morphTargets).forEach(key => {
+        if (morphTargets[key] !== undefined) {
+          influences[morphTargets[key]] = 0;
+        }
+      });
+    }
+  };
+
   // Expose methods to parent component
   useImperativeHandle(ref, () => ({
-    speakText: speakText
+    speakText: speakText,
+    stopAudio: stopAudio
   }));
 
   useEffect(() => {
