@@ -7,6 +7,7 @@ import Button1 from "./UI/Buttons1";
 import { useAuth0 } from "@auth0/auth0-react";
 import { motion } from "framer-motion";
 import PillNav from "./navbar";
+import Chatbot from "./Chatbot";
 // 
 
 
@@ -202,6 +203,9 @@ export default function MainPage() {
         />
         <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" style={{ mixBlendMode: 'screen' }} />
       </div>
+
+      {/* Chatbot */}
+      <Chatbot />
 
       <div className="min-h-screen relative pointer-events-auto">
         {/* PillNav Header - Centered */}
