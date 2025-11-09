@@ -213,7 +213,7 @@ export default function MainPage() {
               { label: 'Home', href: '/' },
               { label: 'Features', href: '#features' },
               { label: 'How it Works', href: '#how-it-works' },
-              { label: 'Reviews', href: '#testimonials' }
+            
             ]}
             activeHref="/"
             className="custom-nav"

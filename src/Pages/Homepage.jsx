@@ -26,7 +26,7 @@ export default function HomePage() {
         {/* PillNav Header */}
         <PillNav
           logo={logo}
-          logoAlt="MockMate Logo"
+          logoAlt="InterviewD Logo"
           items={[
             { label: 'Home', href: '/' },
             { label: 'Features', href: '#features' },
