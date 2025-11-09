@@ -7,8 +7,8 @@ import App from './App.jsx'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Auth0Provider
-      domain="dev-0hgbe7foh74e6lch.us.auth0.com"
-      clientId="JWjbUGmTuIV1br2NkLsaeGTQroZFgoiY"
+      domain="dev-mc3qquemjh0al6qu.us.auth0.com"
+      clientId="Eq7pMkeEP0mBuFpl4mry7ZtzXYYmHfQN"
       authorizationParams={{
         redirect_uri: window.location.origin,
         // audience: `https://interview-d.us.auth0.com/api/v2/`,
