@@ -1,7 +1,5 @@
 # InsightLM - AI-Powered Interview Preparation Platform
 
-![InsightLM Banner]
-
 InsightLM is a cutting-edge interview preparation platform that combines artificial intelligence, real-time video feedback, and comprehensive assessment tools to help candidates prepare for technical interviews. Our platform uses advanced AI technology powered by Azure OpenAI to create realistic interview scenarios, providing personalized feedback and helping candidates improve their interview skills.
 
 ## 🌟 Why InsightLM?
@@ -161,17 +159,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🎮 Demo
 
 Try out InsightLM at: [https://interview-d.vercel.app](https://interview-d.vercel.app)
-
-## 📞 Contact & Support
-
-- **Creator**: Yash Srivastava
-- **GitHub**: [yashsrivasta7a](https://github.com/yashsrivasta7a)
-- **Email**: [contact@InsightLM.tech](mailto:contact@InsightLM.tech)
-- **Project Link**: [https://github.com/yashsrivasta7a/InsightLM](https://github.com/yashsrivasta7a/InsightLM)
-- **Issues**: [Report a bug](https://github.com/yashsrivasta7a/InsightLM/issues)
-
-## 🙏 Acknowledgments
-
-- Thanks to Azure OpenAI for providing the AI capabilities
-- Special thanks to all contributors who have helped shape InsightLM
-- Inspired by real interview experiences and feedback from the developer community
