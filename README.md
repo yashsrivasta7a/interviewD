@@ -1,10 +1,10 @@
-# InterviewD - AI-Powered Interview Preparation Platform
+# InsightLM - AI-Powered Interview Preparation Platform
 
-![InterviewD Banner]
+![InsightLM Banner]
 
-InterviewD is a cutting-edge interview preparation platform that combines artificial intelligence, real-time video feedback, and comprehensive assessment tools to help candidates prepare for technical interviews. Our platform uses advanced AI technology powered by Azure OpenAI to create realistic interview scenarios, providing personalized feedback and helping candidates improve their interview skills.
+InsightLM is a cutting-edge interview preparation platform that combines artificial intelligence, real-time video feedback, and comprehensive assessment tools to help candidates prepare for technical interviews. Our platform uses advanced AI technology powered by Azure OpenAI to create realistic interview scenarios, providing personalized feedback and helping candidates improve their interview skills.
 
-## 🌟 Why InterviewD?
+## 🌟 Why InsightLM?
 
 - **Realistic Interview Experience**: Practice with our AI-powered talking head avatar that simulates real interview scenarios
 - **Comprehensive Preparation**: From technical coding challenges to soft skills assessment
@@ -55,12 +55,12 @@ InterviewD is a cutting-edge interview preparation platform that combines artifi
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yashsrivasta7a/interviewD.git
+git clone https://github.com/yashsrivasta7a/InsightLM.git
 ```
 
 2. Navigate to the project directory:
 ```bash
-cd interviewD
+cd InsightLM
 ```
 
 3. Install dependencies:
@@ -139,7 +139,7 @@ src/
 
 ## 🤝 Contributing
 
-We welcome contributions to InterviewD! Here's how you can help:
+We welcome contributions to InsightLM! Here's how you can help:
 
 1. **Fork the Repository**
 2. **Create your Feature Branch**: `git checkout -b feature/AmazingFeature`
@@ -160,18 +160,18 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🎮 Demo
 
-Try out InterviewD at: [https://interview-d.vercel.app](https://interview-d.vercel.app)
+Try out InsightLM at: [https://interview-d.vercel.app](https://interview-d.vercel.app)
 
 ## 📞 Contact & Support
 
 - **Creator**: Yash Srivastava
 - **GitHub**: [yashsrivasta7a](https://github.com/yashsrivasta7a)
-- **Email**: [contact@interviewd.tech](mailto:contact@interviewd.tech)
-- **Project Link**: [https://github.com/yashsrivasta7a/interviewD](https://github.com/yashsrivasta7a/interviewD)
-- **Issues**: [Report a bug](https://github.com/yashsrivasta7a/interviewD/issues)
+- **Email**: [contact@InsightLM.tech](mailto:contact@InsightLM.tech)
+- **Project Link**: [https://github.com/yashsrivasta7a/InsightLM](https://github.com/yashsrivasta7a/InsightLM)
+- **Issues**: [Report a bug](https://github.com/yashsrivasta7a/InsightLM/issues)
 
 ## 🙏 Acknowledgments
 
 - Thanks to Azure OpenAI for providing the AI capabilities
-- Special thanks to all contributors who have helped shape InterviewD
+- Special thanks to all contributors who have helped shape InsightLM
 - Inspired by real interview experiences and feedback from the developer community

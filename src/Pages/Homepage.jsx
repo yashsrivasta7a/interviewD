@@ -26,7 +26,7 @@ export default function HomePage() {
         {/* PillNav Header */}
         <PillNav
           logo={logo}
-          logoAlt="InterviewD Logo"
+          logoAlt="InsightLM Logo"
           items={[
             { label: 'Home', href: '/' },
             { label: 'Features', href: '#features' },

@@ -17,7 +17,7 @@ const AboutSection = () => {
             textShadow: "0 0 12px #a78bfa, 0 0 20px #a78bfa",
           }}
         >
-          About InterviewD
+          About InsightLM
         </motion.h2>
 
         <motion.p
@@ -27,12 +27,12 @@ const AboutSection = () => {
           transition={{ delay: 0.3, duration: 0.8 }}
           viewport={{ once: true }}
         >
-          InterviewD is your personal AI-powered interview partner — designed to
+          InsightLM is your personal AI-powered interview partner — designed to
           simulate real interview experiences using voice or text, and give instant
           feedback that helps you grow faster.
           <br className="hidden md:inline" />
           Whether you're prepping for your first internship or your dream job at
-          FAANG, InterviewD’s got your back. 🚀
+          FAANG, InsightLM’s got your back. 🚀
         </motion.p>
       </Card>
     </section>

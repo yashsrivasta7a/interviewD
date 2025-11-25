@@ -25,7 +25,7 @@ export default function ScrollingNavbar({ user, handleSignOut, handleStartInterv
             <Brain className="w-5 h-5 text-white" />
           </motion.div>
           <span className="text-xl font-bold bg-gradient-to-r from-purple-700 to-teal-700 bg-clip-text text-transparent">
-            InterviewD
+            InsightLM
           </span>
         </motion.div>
         

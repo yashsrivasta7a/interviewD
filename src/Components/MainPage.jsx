@@ -208,7 +208,7 @@ export default function MainPage() {
         <div className="flex fixed left-1/2 transform -translate-x-1/2 justify-center mb-24 z-[1000]">
           <PillNav
             // logo={logo}
-            // logoAlt="InterviewD Logo"
+            // logoAlt="InsightLM Logo"
             items={[
               { label: 'Home', href: '/' },
               { label: 'Features', href: '#features' },
@@ -269,7 +269,7 @@ export default function MainPage() {
                 <Award className="w-4 h-4 text-teal-300" />
                 <span>Premium Features</span>
               </motion.div>
-              <h2 className="text-4xl font-bold text-white mb-4">Why Choose InterviewD?</h2>
+              <h2 className="text-4xl font-bold text-white mb-4">Why Choose InsightLM?</h2>
               <p className="text-xl text-gray-300 max-w-2xl mx-auto">Our platform combines cutting-edge AI technology with proven interview techniques</p>
             </motion.div>
 
@@ -387,7 +387,7 @@ export default function MainPage() {
           <div className="absolute inset-0 bg-gradient-to-r from-purple-900/30 via-purple-800/20 to-teal-900/30 rounded-xl -z-10" />
           <div className="container mx-auto text-center relative">
             <h2 className="text-4xl font-bold text-white mb-4">Ready to Ace Your Next Interview?</h2>
-            <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">Join thousands of successful candidates who used InterviewD to land their dream jobs</p>
+            <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">Join thousands of successful candidates who used InsightLM to land their dream jobs</p>
             <Link to="/interview">
               <Button size="lg" className="bg-gradient-to-r from-purple-600 to-teal-500 text-white px-8 py-4 text-lg shadow-xl hover:shadow-2xl transition-all duration-300">Start Your Free Interview Now
                 <ArrowRight className="ml-2 w-5 h-5" />
@@ -397,7 +397,7 @@ export default function MainPage() {
         </section>
 
         <footer className="bg-gray-900/80 backdrop-blur-sm text-gray-300 py-6 px-4 text-center text-sm border-t border-white/5">
-          <div>© 2025 InterviewD. All rights reserved.</div>
+          <div>© 2025 InsightLM. All rights reserved.</div>
         </footer>
       </div>
     </>
